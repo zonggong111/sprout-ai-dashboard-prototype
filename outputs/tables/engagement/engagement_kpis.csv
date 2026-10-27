@@ -1,0 +1,17 @@
+metric,value
+total_ga_events,554.0
+unique_sessions,120.0
+unique_anonymised_users,47.0
+chat_entries,91.0
+chat_entry_events,91.0
+chat_sessions,91.0
+active_chat_sessions,66.0
+chat_activation_rate,0.7252747252747253
+chat_messages,116.0
+chat_messages_sent,116.0
+messages_per_chat_session,1.2747252747252746
+messages_per_active_session,1.7575757575757576
+feedback_submissions,32.0
+negative_feedback_rate,0.1875
+engagement_time,11597.0
+total_engagement_time_seconds,11597.0

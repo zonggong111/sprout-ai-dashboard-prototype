@@ -1,0 +1,41 @@
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Operating-system and editor metadata
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+*.pem
+*.key
+credentials*.json
+
+# Temporary and generated development artifacts
+*.tmp
+*.temp
+*.bak
+*.log
+coverage.xml
+.coverage
+htmlcov/
+
+# Non-runtime exports must not be added to the deployment repository
+outputs/**/*.png
+outputs/**/*.html
+outputs/**/*.xlsx
+outputs/**/*.xls
+outputs/**/*.pdf

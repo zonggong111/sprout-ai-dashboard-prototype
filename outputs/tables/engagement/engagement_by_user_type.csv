@@ -1,0 +1,4 @@
+user_type,chat_sessions,chat_entry_events,entry_sessions,active_chat_sessions,chat_messages_sent,messages_per_active_session,activation_rate,feedback_submissions,negative_feedback_rate,engagement_time_seconds
+post_lq,38,38,38,30,48,1.6,0.7894736842105263,17,0.11764705882352941,4336.0
+pre_lq,24,24,24,20,37,1.85,0.8333333333333334,9,0.2222222222222222,3924.0
+post_screening,29,29,29,16,31,1.9375,0.5517241379310345,6,0.3333333333333333,3337.0

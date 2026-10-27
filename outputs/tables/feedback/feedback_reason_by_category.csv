@@ -1,0 +1,15 @@
+feedback_reason,question_category,case_count,category_negative_cases
+Hard to understand,Growth & Development,1,1
+Hard to understand,Wellbeing / Emotional Health,1,2
+Missing details,Health Screening,1,1
+Missing details,Healthy Eating / Nutrition,1,1
+Missing details,Lifestyle Questionnaire,1,1
+Missing details,Sleep,1,3
+Not relevant,Symptoms / Illness,1,1
+Not relevant,Wellbeing / Emotional Health,1,2
+Slow or not working,Growth & Development,1,1
+Slow or not working,Sleep,1,3
+Slow or not working,Wellbeing / Emotional Health,1,2
+Something else,Sleep,1,3
+Wrong information,Health Screening,1,1
+Wrong information,Sleep,1,3

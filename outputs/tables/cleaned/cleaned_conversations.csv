@@ -1,0 +1,708 @@
+query_id,session_id,user_id_anonymised,timestamp,user_query,ai_response,topic,fallback_flag,guardrail_flag,success_flag,user_feedback,feedback_id,feedback_reason,feedback_comment,conversation_id,response_id,message_id,user_type,entry_point,source_used,beta_or_production,data_notice,query_cleaned,date,week_start,duplicate_query_id_flag,topic_original,primary_topic,related_feature,classification_method,manual_review_flag,classification_ambiguity_reason,classification_matched_keywords,classification_candidate_topics,topic_source
+DUMMY_Q0004,DUMMY_GA_S0004,DUMMY_U007,2026-06-04 18:25:28+00:00,How do I complete the Lifestyle Questionnaire?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available lifestyle questionnaire information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Lifestyle Questionnaire,False,False,True,negative,DUMMY_FB0004,Missing details,,DUMMY_CONV_DUMMY_GA_S0004,DUMMY_R0004,DUMMY_M0004,pre_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i complete the lifestyle questionnaire,2026-06-04,2026-06-01,False,Lifestyle Questionnaire,Lifestyle Questionnaire,Lifestyle Questionnaire,existing_label,False,,lifestyle questionnaire,Lifestyle Questionnaire,existing_label
+DUMMY_Q0005,DUMMY_GA_S0004,DUMMY_U007,2026-06-04 18:25:59+00:00,Where can I open the Wellbeing Snapshot?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available wellbeing snapshot information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Wellbeing Snapshot,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0004,DUMMY_R0005,DUMMY_M0005,pre_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,where can i open the wellbeing snapshot,2026-06-04,2026-06-01,False,,Wellbeing Snapshot,Wellbeing Snapshot,rule_based,True,multiple_topic_rules_matched,wellbeing snapshot,Wellbeing Snapshot | Wellbeing / Emotional Health,rule_based
+DUMMY_Q0096,DUMMY_GA_S0113,DUMMY_U030,2026-06-05 13:18:58+00:00,How can I get my child to eat more vegetables?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0113,DUMMY_R0096,DUMMY_M0096,post_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how can i get my child to eat more vegetables,2026-06-05,2026-06-01,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,eat | vegetable,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0097,DUMMY_GA_S0113,DUMMY_U030,2026-06-05 13:19:42+00:00,How do I understand my child's BMI?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Growth & Development,False,False,False,,,,,DUMMY_CONV_DUMMY_GA_S0113,DUMMY_R0097,DUMMY_M0097,post_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i understand my child s bmi,2026-06-05,2026-06-01,False,Growth / Development,Growth & Development,,existing_label,False,,bmi,Growth & Development,existing_label
+DUMMY_Q0073,DUMMY_GA_S0077,DUMMY_U039,2026-06-07 08:41:14+00:00,"My child has a fever, when should I see a doctor?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The next step depends on the symptom, how long it has lasted, how your child is behaving, and whether there are warning signs.
+
+Monitor temperature, fluids, alertness, breathing, and symptom changes. Seek urgent medical help for breathing difficulty, unusual drowsiness, severe pain, dehydration, or any rapid deterioration.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Symptoms / Illness,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0077,DUMMY_R0073,DUMMY_M0073,post_screening,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,my child has a fever when should i see a doctor,2026-06-07,2026-06-01,False,Symptoms / Illness,Symptoms / Illness,,existing_label,False,,fever | doctor,Symptoms / Illness,existing_label
+DUMMY_Q0074,DUMMY_GA_S0077,DUMMY_U039,2026-06-07 08:44:03+00:00,How do I understand my child's BMI?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Growth & Development,False,False,True,negative,DUMMY_FB0074,Hard to understand | Slow or not working,,DUMMY_CONV_DUMMY_GA_S0077,DUMMY_R0074,DUMMY_M0074,post_screening,lp_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i understand my child s bmi,2026-06-07,2026-06-01,False,Growth / Development,Growth & Development,,existing_label,False,,bmi,Growth & Development,existing_label
+DUMMY_Q0075,DUMMY_GA_S0077,DUMMY_U039,2026-06-07 08:44:32+00:00,How do I encourage more vegetables at meals?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0077,DUMMY_R0075,DUMMY_M0075,post_screening,lp_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i encourage more vegetables at meals,2026-06-07,2026-06-01,False,,Healthy Eating / Nutrition,,rule_based,False,,meal | vegetable,Healthy Eating / Nutrition,rule_based
+DUMMY_Q0086,DUMMY_GA_S0098,DUMMY_U048,2026-06-07 13:37:22+00:00,Can you explain: what can I do if my child refuses vegetables?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0098,DUMMY_R0086,DUMMY_M0086,post_lq,ws_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you explain what can i do if my child refuses vegetables,2026-06-07,2026-06-01,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,vegetable,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0027,DUMMY_GA_S0030,DUMMY_U013,2026-06-07 15:25:29+00:00,What is a healthy daily screen-time limit?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+A workable screen routine balances sleep, school, movement, family time, and recreation rather than focusing only on a single number.
+
+Agree on consistent device-free times, give a warning before stopping, and offer a clear alternative activity. Adults following the same household rules can make them easier to maintain.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Screen Use,False,False,True,positive,DUMMY_FB0027,,,DUMMY_CONV_DUMMY_GA_S0030,DUMMY_R0027,DUMMY_M0027,pre_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what is a healthy daily screen time limit,2026-06-07,2026-06-01,False,,Screen Use,,rule_based,False,,screen time,Screen Use,rule_based
+DUMMY_Q0028,DUMMY_GA_S0033,DUMMY_U029,2026-06-07 18:33:18+00:00,"My child seems anxious, how can I help?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available mental / emotional wellbeing information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Wellbeing / Emotional Health,False,False,True,negative,DUMMY_FB0028,Hard to understand | Slow or not working,,DUMMY_CONV_DUMMY_GA_S0033,DUMMY_R0028,DUMMY_M0028,post_screening,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,my child seems anxious how can i help,2026-06-07,2026-06-01,False,,Wellbeing / Emotional Health,,rule_based,False,,anxious,Wellbeing / Emotional Health,rule_based
+DUMMY_Q0029,DUMMY_GA_S0033,DUMMY_U029,2026-06-07 18:33:59+00:00,Does sharing a room affect a child's bedtime routine?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0033,DUMMY_R0029,DUMMY_M0029,post_screening,lp_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,does sharing a room affect a child s bedtime routine,2026-06-07,2026-06-01,False,,Sleep,,rule_based,False,,bedtime,Sleep,rule_based
+DUMMY_Q0030,DUMMY_GA_S0033,DUMMY_U029,2026-06-07 18:34:24+00:00,What is enough sleep for a primary school child?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0033,DUMMY_R0030,DUMMY_M0030,post_screening,lp_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what is enough sleep for a primary school child,2026-06-07,2026-06-01,False,,Sleep,,rule_based,False,,sleep,Sleep,rule_based
+DUMMY_Q0056,DUMMY_GA_S0062,DUMMY_U049,2026-06-07 18:47:04+00:00,Can my child exercise after a vaccination appointment?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available vaccination information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Vaccination,False,False,True,positive,DUMMY_FB0056,,,DUMMY_CONV_DUMMY_GA_S0062,DUMMY_R0056,DUMMY_M0056,post_screening,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can my child exercise after a vaccination appointment,2026-06-07,2026-06-01,False,Vaccination,Vaccination,,existing_label,True,multiple_topic_rules_matched,vaccination,Vaccination | Physical Activity,existing_label
+DUMMY_Q0093,DUMMY_GA_S0108,DUMMY_U041,2026-06-08 21:00:07+00:00,"My child has a fever, when should I see a doctor?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The next step depends on the symptom, how long it has lasted, how your child is behaving, and whether there are warning signs.
+
+Monitor temperature, fluids, alertness, breathing, and symptom changes. Seek urgent medical help for breathing difficulty, unusual drowsiness, severe pain, dehydration, or any rapid deterioration.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Symptoms / Illness,False,False,True,positive,DUMMY_FB0093,,,DUMMY_CONV_DUMMY_GA_S0108,DUMMY_R0093,DUMMY_M0093,pre_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,my child has a fever when should i see a doctor,2026-06-08,2026-06-08,False,,Symptoms / Illness,,rule_based,False,,fever | doctor,Symptoms / Illness,rule_based
+DUMMY_Q0088,DUMMY_GA_S0101,DUMMY_U008,2026-06-12 20:12:30+00:00,How many minutes of physical activity should a primary school child get?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0101,DUMMY_R0088,DUMMY_M0088,pre_lq,about_us,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how many minutes of physical activity should a primary school child get,2026-06-12,2026-06-08,False,,Physical Activity,,rule_based,False,,physical activity,Physical Activity,rule_based
+DUMMY_Q0090,DUMMY_GA_S0104,DUMMY_U025,2026-06-14 10:38:25+00:00,How active should my child be each day?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0104,DUMMY_R0090,DUMMY_M0090,post_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how active should my child be each day,2026-06-14,2026-06-08,False,Physical Activity,Physical Activity,,existing_label,False,,active,Physical Activity,existing_label
+DUMMY_Q0091,DUMMY_GA_S0104,DUMMY_U025,2026-06-14 10:39:00+00:00,"My child keeps waking at night, what should I do?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0104,DUMMY_R0091,DUMMY_M0091,post_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,my child keeps waking at night what should i do,2026-06-14,2026-06-08,False,Sleep,Sleep,,existing_label,False,,waking,Sleep,existing_label
+DUMMY_Q0035,DUMMY_GA_S0038,DUMMY_U029,2026-06-16 10:17:28+00:00,How can I reduce my child's screen time?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+A workable screen routine balances sleep, school, movement, family time, and recreation rather than focusing only on a single number.
+
+Agree on consistent device-free times, give a warning before stopping, and offer a clear alternative activity. Adults following the same household rules can make them easier to maintain.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Screen Use,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0038,DUMMY_R0035,DUMMY_M0035,pre_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how can i reduce my child s screen time,2026-06-16,2026-06-15,False,Screen Use,Screen Use,,existing_label,False,,screen time,Screen Use,existing_label
+DUMMY_Q0092,DUMMY_GA_S0106,DUMMY_U011,2026-06-16 10:48:03+00:00,Can you explain: where can I find my child's health plan?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The requested information may be available from your child's profile in the Parent Portal, depending on which services have been completed.
+
+Open the relevant child profile, then look for the named feature or latest record. If it is not visible, check that the correct child is selected and that the related assessment has been completed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Parent Portal Navigation,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0106,DUMMY_R0092,DUMMY_M0092,pre_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you explain where can i find my child s health plan,2026-06-16,2026-06-15,False,Parent Portal Navigation,Parent Portal Navigation,Health Plan,existing_label,False,,where can i find,Parent Portal Navigation,existing_label
+DUMMY_Q0076,DUMMY_GA_S0081,DUMMY_U009,2026-06-16 15:35:43+00:00,What time should my child go to sleep?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,positive,DUMMY_FB0076,,,DUMMY_CONV_DUMMY_GA_S0081,DUMMY_R0076,DUMMY_M0076,post_screening,ws_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what time should my child go to sleep,2026-06-16,2026-06-15,False,,Sleep,,rule_based,False,,sleep,Sleep,rule_based
+DUMMY_Q0098,DUMMY_GA_S0115,DUMMY_U044,2026-06-17 08:43:01+00:00,How do I understand my child's BMI?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Growth & Development,False,False,True,positive,DUMMY_FB0098,,,DUMMY_CONV_DUMMY_GA_S0115,DUMMY_R0098,DUMMY_M0098,post_screening,ws_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i understand my child s bmi,2026-06-17,2026-06-15,False,,Growth & Development,,rule_based,False,,bmi,Growth & Development,rule_based
+DUMMY_Q0006,DUMMY_GA_S0006,DUMMY_U028,2026-06-17 10:35:57+00:00,What does the Lifestyle Prescription recommend?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available lifestyle prescription information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Lifestyle Prescription,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0006,DUMMY_R0006,DUMMY_M0006,post_screening,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what does the lifestyle prescription recommend,2026-06-17,2026-06-15,False,,Lifestyle Prescription,Lifestyle Prescription,rule_based,True,multiple_topic_rules_matched,lifestyle prescription,Lifestyle Prescription | Medication,rule_based
+DUMMY_Q0007,DUMMY_GA_S0006,DUMMY_U028,2026-06-17 10:37:42+00:00,What goals are included in my child's Health Plan?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available health plan information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Health Plan,False,False,True,positive,DUMMY_FB0007,,,DUMMY_CONV_DUMMY_GA_S0006,DUMMY_R0007,DUMMY_M0007,post_screening,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what goals are included in my child s health plan,2026-06-17,2026-06-15,False,Health Plan,Health Plan,Health Plan,existing_label,False,,health plan,Health Plan,existing_label
+DUMMY_Q0008,DUMMY_GA_S0008,DUMMY_U055,2026-06-17 13:18:45+00:00,What happens during the school health visit?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available school health information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",School Health,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0008,DUMMY_R0008,DUMMY_M0008,post_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what happens during the school health visit,2026-06-17,2026-06-15,False,School Health,School Health,,existing_label,False,,school health,School Health,existing_label
+DUMMY_Q0032,DUMMY_GA_S0037,DUMMY_U010,2026-06-19 17:11:13+00:00,What can I do if my child refuses vegetables?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0037,DUMMY_R0032,DUMMY_M0032,post_screening,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what can i do if my child refuses vegetables,2026-06-19,2026-06-15,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,vegetable,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0033,DUMMY_GA_S0037,DUMMY_U010,2026-06-19 17:12:23+00:00,"My child keeps waking at night, what should I do?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,negative,DUMMY_FB0033,Slow or not working,The response took too long or the interaction did not work as expected.,DUMMY_CONV_DUMMY_GA_S0037,DUMMY_R0033,DUMMY_M0033,post_screening,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,my child keeps waking at night what should i do,2026-06-19,2026-06-15,False,Sleep,Sleep,,existing_label,False,,waking,Sleep,existing_label
+DUMMY_Q0034,DUMMY_GA_S0037,DUMMY_U010,2026-06-19 17:13:31+00:00,"My child keeps waking at night, what should I do?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,negative,DUMMY_FB0034,Something else,,DUMMY_CONV_DUMMY_GA_S0037,DUMMY_R0034,DUMMY_M0034,post_screening,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,my child keeps waking at night what should i do,2026-06-19,2026-06-15,False,,Sleep,,rule_based,False,,waking,Sleep,rule_based
+DUMMY_Q0081,DUMMY_GA_S0091,DUMMY_U050,2026-06-21 08:37:00+00:00,Can you explain: how much exercise does my child need?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0091,DUMMY_R0081,DUMMY_M0081,post_screening,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you explain how much exercise does my child need,2026-06-21,2026-06-15,False,Physical Activity,Physical Activity,,existing_label,False,,exercise,Physical Activity,existing_label
+DUMMY_Q0037,DUMMY_GA_S0043,DUMMY_U007,2026-06-21 08:43:41+00:00,How do I encourage more vegetables at meals?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0043,DUMMY_R0037,DUMMY_M0037,pre_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i encourage more vegetables at meals,2026-06-21,2026-06-15,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,meal | vegetable,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0084,DUMMY_GA_S0096,DUMMY_U050,2026-06-23 08:05:18+00:00,Which activities can help my child move more?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0096,DUMMY_R0084,DUMMY_M0084,post_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,which activities can help my child move more,2026-06-23,2026-06-22,False,Physical Activity,Physical Activity,,existing_label,False,,,,existing_label
+DUMMY_Q0085,DUMMY_GA_S0096,DUMMY_U050,2026-06-23 08:05:39+00:00,How many minutes of physical activity should a primary school child get?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,positive,DUMMY_FB0085,,,DUMMY_CONV_DUMMY_GA_S0096,DUMMY_R0085,DUMMY_M0085,post_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how many minutes of physical activity should a primary school child get,2026-06-23,2026-06-22,False,Physical Activity,Physical Activity,,existing_label,False,,physical activity,Physical Activity,existing_label
+DUMMY_Q0014,DUMMY_GA_S0014,DUMMY_U008,2026-06-23 15:51:55+00:00,Which activities can help my child move more?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0014,DUMMY_R0014,DUMMY_M0014,post_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,which activities can help my child move more,2026-06-23,2026-06-22,False,Physical Activity,Physical Activity,,existing_label,False,,,,existing_label
+DUMMY_Q0038,DUMMY_GA_S0044,DUMMY_U050,2026-06-24 16:50:44+00:00,How do I reset my Parent Portal password?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The requested information may be available from your child's profile in the Parent Portal, depending on which services have been completed.
+
+Open the relevant child profile, then look for the named feature or latest record. If it is not visible, check that the correct child is selected and that the related assessment has been completed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Parent Portal Navigation,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0044,DUMMY_R0038,DUMMY_M0038,post_lq,ws_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i reset my parent portal password,2026-06-24,2026-06-22,False,,Parent Portal Navigation,,rule_based,False,,parent portal | password,Parent Portal Navigation,rule_based
+DUMMY_Q0039,DUMMY_GA_S0044,DUMMY_U050,2026-06-24 16:51:47+00:00,How do I understand my child's BMI?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Growth & Development,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0044,DUMMY_R0039,DUMMY_M0039,post_lq,ws_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i understand my child s bmi,2026-06-24,2026-06-22,False,,Growth & Development,,rule_based,False,,bmi,Growth & Development,rule_based
+DUMMY_Q0040,DUMMY_GA_S0044,DUMMY_U050,2026-06-24 16:53:15+00:00,"My child keeps waking at night, what should I do?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0044,DUMMY_R0040,DUMMY_M0040,post_lq,ws_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,my child keeps waking at night what should i do,2026-06-24,2026-06-22,False,,Sleep,,rule_based,False,,waking,Sleep,rule_based
+DUMMY_Q0009,DUMMY_GA_S0010,DUMMY_U056,2026-06-25 09:02:23+00:00,How do I start a new conversation in Sprout AI?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available sprout ai / system help information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sprout AI / System Help,False,False,True,positive,DUMMY_FB0009,,,DUMMY_CONV_DUMMY_GA_S0010,DUMMY_R0009,DUMMY_M0009,pre_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i start a new conversation in sprout ai,2026-06-25,2026-06-22,False,Sprout AI / System Help,Sprout AI / System Help,Sprout AI,existing_label,False,,sprout ai | sprout,Sprout AI / System Help,existing_label
+DUMMY_Q0010,DUMMY_GA_S0010,DUMMY_U056,2026-06-25 09:05:05+00:00,Where can I find my child's health plan?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The requested information may be available from your child's profile in the Parent Portal, depending on which services have been completed.
+
+Open the relevant child profile, then look for the named feature or latest record. If it is not visible, check that the correct child is selected and that the related assessment has been completed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Parent Portal Navigation,False,False,True,positive,DUMMY_FB0010,,,DUMMY_CONV_DUMMY_GA_S0010,DUMMY_R0010,DUMMY_M0010,pre_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,where can i find my child s health plan,2026-06-25,2026-06-22,False,Parent Portal Navigation,Parent Portal Navigation,Health Plan,existing_label,False,,where can i find,Parent Portal Navigation,existing_label
+DUMMY_Q0094,DUMMY_GA_S0109,DUMMY_U043,2026-06-25 13:26:31+00:00,What are healthy snacks for a child?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,positive,DUMMY_FB0094,,,DUMMY_CONV_DUMMY_GA_S0109,DUMMY_R0094,DUMMY_M0094,post_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what are healthy snacks for a child,2026-06-25,2026-06-22,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,snack,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0044,DUMMY_GA_S0047,DUMMY_U058,2026-06-30 08:24:14+00:00,Where can I find my child's health plan?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The requested information may be available from your child's profile in the Parent Portal, depending on which services have been completed.
+
+Open the relevant child profile, then look for the named feature or latest record. If it is not visible, check that the correct child is selected and that the related assessment has been completed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Parent Portal Navigation,False,False,True,positive,DUMMY_FB0044,,,DUMMY_CONV_DUMMY_GA_S0047,DUMMY_R0044,DUMMY_M0044,post_lq,lp_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,where can i find my child s health plan,2026-06-30,2026-06-29,False,Parent Portal Navigation,Parent Portal Navigation,Health Plan,existing_label,False,,where can i find,Parent Portal Navigation,existing_label
+DUMMY_Q0045,DUMMY_GA_S0047,DUMMY_U058,2026-06-30 08:26:03+00:00,What is enough sleep for a primary school child?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,positive,DUMMY_FB0045,,,DUMMY_CONV_DUMMY_GA_S0047,DUMMY_R0045,DUMMY_M0045,post_lq,lp_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what is enough sleep for a primary school child,2026-06-30,2026-06-29,False,Sleep,Sleep,,existing_label,False,,sleep,Sleep,existing_label
+DUMMY_Q0046,DUMMY_GA_S0047,DUMMY_U058,2026-06-30 08:27:31+00:00,Is my child's height normal for their age?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Growth & Development,False,False,False,positive,DUMMY_FB0046,,,DUMMY_CONV_DUMMY_GA_S0047,DUMMY_R0046,DUMMY_M0046,post_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,is my child s height normal for their age,2026-06-30,2026-06-29,False,,Growth & Development,,rule_based,False,,height,Growth & Development,rule_based
+DUMMY_Q0080,DUMMY_GA_S0090,DUMMY_U031,2026-07-01 20:52:23+00:00,How active should my child be each day?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,positive,DUMMY_FB0080,,,DUMMY_CONV_DUMMY_GA_S0090,DUMMY_R0080,DUMMY_M0080,pre_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how active should my child be each day,2026-07-01,2026-06-29,False,Physical Activity,Physical Activity,,existing_label,False,,active,Physical Activity,existing_label
+DUMMY_Q0026,DUMMY_GA_S0029,DUMMY_U036,2026-07-02 14:51:32+00:00,Should video calls with grandparents count toward device limits?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+A workable screen routine balances sleep, school, movement, family time, and recreation rather than focusing only on a single number.
+
+Agree on consistent device-free times, give a warning before stopping, and offer a clear alternative activity. Adults following the same household rules can make them easier to maintain.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Screen Use,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0029,DUMMY_R0026,DUMMY_M0026,post_lq,lp_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,should video calls with grandparents count toward device limits,2026-07-02,2026-06-29,False,Screen Use,Screen Use,,existing_label,False,,,,existing_label
+DUMMY_Q0082,DUMMY_GA_S0093,DUMMY_U043,2026-07-02 16:43:13+00:00,How active should my child be each day?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0093,DUMMY_R0082,DUMMY_M0082,pre_lq,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how active should my child be each day,2026-07-02,2026-06-29,False,Physical Activity,Physical Activity,,existing_label,False,,active,Physical Activity,existing_label
+DUMMY_Q0083,DUMMY_GA_S0093,DUMMY_U043,2026-07-02 16:44:08+00:00,Where can I find my child's health plan?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The requested information may be available from your child's profile in the Parent Portal, depending on which services have been completed.
+
+Open the relevant child profile, then look for the named feature or latest record. If it is not visible, check that the correct child is selected and that the related assessment has been completed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Parent Portal Navigation,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0093,DUMMY_R0083,DUMMY_M0083,pre_lq,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,where can i find my child s health plan,2026-07-02,2026-06-29,False,Parent Portal Navigation,Parent Portal Navigation,Health Plan,existing_label,False,,where can i find,Parent Portal Navigation,existing_label
+DUMMY_Q0061,DUMMY_GA_S0069,DUMMY_U039,2026-07-03 17:41:56+00:00,How do I encourage more vegetables at meals?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,positive,DUMMY_FB0061,,,DUMMY_CONV_DUMMY_GA_S0069,DUMMY_R0061,DUMMY_M0061,post_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i encourage more vegetables at meals,2026-07-03,2026-06-29,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,meal | vegetable,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0015,DUMMY_GA_S0015,DUMMY_U058,2026-07-05 11:40:29+00:00,What should I do about a persistent cough?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The next step depends on the symptom, how long it has lasted, how your child is behaving, and whether there are warning signs.
+
+Monitor temperature, fluids, alertness, breathing, and symptom changes. Seek urgent medical help for breathing difficulty, unusual drowsiness, severe pain, dehydration, or any rapid deterioration.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Symptoms / Illness,,,,,,,,DUMMY_CONV_DUMMY_GA_S0015,DUMMY_R0015,DUMMY_M0015,post_lq,ws_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what should i do about a persistent cough,2026-07-05,2026-06-29,False,Symptoms / Illness,Symptoms / Illness,,existing_label,False,,cough,Symptoms / Illness,existing_label
+DUMMY_Q0016,DUMMY_GA_S0015,DUMMY_U058,2026-07-05 11:40:59+00:00,Is breakfast necessary before an early school bus?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,positive,DUMMY_FB0016,,,DUMMY_CONV_DUMMY_GA_S0015,DUMMY_R0016,DUMMY_M0016,post_lq,ws_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,is breakfast necessary before an early school bus,2026-07-05,2026-06-29,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,breakfast,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0017,DUMMY_GA_S0015,DUMMY_U058,2026-07-05 11:42:07+00:00,"My child keeps waking at night, what should I do?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0015,DUMMY_R0017,DUMMY_M0017,post_lq,ws_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,my child keeps waking at night what should i do,2026-07-05,2026-06-29,False,,Sleep,,rule_based,False,,waking,Sleep,rule_based
+DUMMY_Q0068,DUMMY_GA_S0074,DUMMY_U032,2026-07-07 17:40:09+00:00,How many minutes of physical activity should a primary school child get?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0074,DUMMY_R0068,DUMMY_M0068,post_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how many minutes of physical activity should a primary school child get,2026-07-07,2026-07-06,False,,Physical Activity,,rule_based,False,,physical activity,Physical Activity,rule_based
+DUMMY_Q0069,DUMMY_GA_S0074,DUMMY_U032,2026-07-07 17:40:44+00:00,Can you explain: can you suggest healthier snack ideas for children?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0074,DUMMY_R0069,DUMMY_M0069,post_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you explain can you suggest healthier snack ideas for children,2026-07-07,2026-07-06,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,snack,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0052,DUMMY_GA_S0057,DUMMY_U053,2026-07-09 08:13:16+00:00,How active should my child be each day?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,False,,,,,DUMMY_CONV_DUMMY_GA_S0057,DUMMY_R0052,DUMMY_M0052,post_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how active should my child be each day,2026-07-09,2026-07-06,False,,Physical Activity,,rule_based,False,,active,Physical Activity,rule_based
+DUMMY_Q0031,DUMMY_GA_S0035,DUMMY_U045,2026-07-10 20:30:58+00:00,Can you explain: is my child's height normal for their age?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Growth & Development,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0035,DUMMY_R0031,DUMMY_M0031,post_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you explain is my child s height normal for their age,2026-07-10,2026-07-06,False,Growth / Development,Growth & Development,,existing_label,False,,height,Growth & Development,existing_label
+DUMMY_Q0099,DUMMY_GA_S0119,DUMMY_U053,2026-07-11 20:07:02+00:00,What should I do about a persistent cough?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The next step depends on the symptom, how long it has lasted, how your child is behaving, and whether there are warning signs.
+
+Monitor temperature, fluids, alertness, breathing, and symptom changes. Seek urgent medical help for breathing difficulty, unusual drowsiness, severe pain, dehydration, or any rapid deterioration.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Symptoms / Illness,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0119,DUMMY_R0099,DUMMY_M0099,pre_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what should i do about a persistent cough,2026-07-11,2026-07-06,False,,Symptoms / Illness,,rule_based,False,,cough,Symptoms / Illness,rule_based
+DUMMY_Q0100,DUMMY_GA_S0119,DUMMY_U053,2026-07-11 20:07:49+00:00,Can you suggest healthier snack ideas for children?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,positive,DUMMY_FB0100,,,DUMMY_CONV_DUMMY_GA_S0119,DUMMY_R0100,DUMMY_M0100,pre_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you suggest healthier snack ideas for children,2026-07-11,2026-07-06,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,snack,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0101,DUMMY_GA_S0119,DUMMY_U053,2026-07-11 20:08:12+00:00,How active should my child be each day?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0119,DUMMY_R0101,DUMMY_M0101,pre_lq,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how active should my child be each day,2026-07-11,2026-07-06,False,Physical Activity,Physical Activity,,existing_label,False,,active,Physical Activity,existing_label
+DUMMY_Q0053,DUMMY_GA_S0061,DUMMY_U026,2026-07-12 12:03:53+00:00,How can I help with worries before a school performance?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available mental / emotional wellbeing information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Other,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0061,DUMMY_R0053,DUMMY_M0053,pre_lq,lp_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how can i help with worries before a school performance,2026-07-12,2026-07-06,False,,Other,,other,True,no_primary_topic_rule_matched,,,other
+DUMMY_Q0054,DUMMY_GA_S0061,DUMMY_U026,2026-07-12 12:04:18+00:00,Can another caregiver have separate portal access?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The requested information may be available from your child's profile in the Parent Portal, depending on which services have been completed.
+
+Open the relevant child profile, then look for the named feature or latest record. If it is not visible, check that the correct child is selected and that the related assessment has been completed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Parent Portal Navigation,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0061,DUMMY_R0054,DUMMY_M0054,pre_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can another caregiver have separate portal access,2026-07-12,2026-07-06,False,Parent Portal Navigation,Parent Portal Navigation,,existing_label,False,,,,existing_label
+DUMMY_Q0055,DUMMY_GA_S0061,DUMMY_U026,2026-07-12 12:04:40+00:00,How do I reset my Parent Portal password?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The requested information may be available from your child's profile in the Parent Portal, depending on which services have been completed.
+
+Open the relevant child profile, then look for the named feature or latest record. If it is not visible, check that the correct child is selected and that the related assessment has been completed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Parent Portal Navigation,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0061,DUMMY_R0055,DUMMY_M0055,pre_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i reset my parent portal password,2026-07-12,2026-07-06,False,,Parent Portal Navigation,,rule_based,False,,parent portal | password,Parent Portal Navigation,rule_based
+DUMMY_Q0072,DUMMY_GA_S0076,DUMMY_U058,2026-07-13 08:51:48+00:00,How can I help my child manage school stress?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available mental / emotional wellbeing information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Wellbeing / Emotional Health,False,False,True,negative,DUMMY_FB0072,Not relevant,The response did not address the question I was trying to ask.,DUMMY_CONV_DUMMY_GA_S0076,DUMMY_R0072,DUMMY_M0072,post_lq,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how can i help my child manage school stress,2026-07-13,2026-07-13,False,,Wellbeing / Emotional Health,,rule_based,False,,stress,Wellbeing / Emotional Health,rule_based
+DUMMY_Q0070,DUMMY_GA_S0075,DUMMY_U004,2026-07-13 17:19:09+00:00,Which nutritious snacks can I pack for school?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,positive,DUMMY_FB0070,,,DUMMY_CONV_DUMMY_GA_S0075,DUMMY_R0070,DUMMY_M0070,pre_lq,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,which nutritious snacks can i pack for school,2026-07-13,2026-07-13,False,,Healthy Eating / Nutrition,,rule_based,False,,snack,Healthy Eating / Nutrition,rule_based
+DUMMY_Q0071,DUMMY_GA_S0075,DUMMY_U004,2026-07-13 17:19:46+00:00,What can I do if my child refuses vegetables?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,negative,DUMMY_FB0071,Missing details,,DUMMY_CONV_DUMMY_GA_S0075,DUMMY_R0071,DUMMY_M0071,pre_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what can i do if my child refuses vegetables,2026-07-13,2026-07-13,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,vegetable,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0077,DUMMY_GA_S0084,DUMMY_U001,2026-07-13 20:51:48+00:00,"My child seems anxious, how can I help?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available mental / emotional wellbeing information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Wellbeing / Emotional Health,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0084,DUMMY_R0077,DUMMY_M0077,pre_lq,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,my child seems anxious how can i help,2026-07-13,2026-07-13,False,,Wellbeing / Emotional Health,,rule_based,False,,anxious,Wellbeing / Emotional Health,rule_based
+DUMMY_Q0078,DUMMY_GA_S0084,DUMMY_U001,2026-07-13 20:52:48+00:00,Can you suggest healthier snack ideas for children?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0084,DUMMY_R0078,DUMMY_M0078,pre_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you suggest healthier snack ideas for children,2026-07-13,2026-07-13,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,snack,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0079,DUMMY_GA_S0084,DUMMY_U001,2026-07-13 20:53:57+00:00,Which nutritious snacks can I pack for school?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0084,DUMMY_R0079,DUMMY_M0079,pre_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,which nutritious snacks can i pack for school,2026-07-13,2026-07-13,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,snack,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0057,DUMMY_GA_S0064,DUMMY_U009,2026-07-15 09:41:29+00:00,How do I encourage more vegetables at meals?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0064,DUMMY_R0057,DUMMY_M0057,pre_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i encourage more vegetables at meals,2026-07-15,2026-07-13,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,meal | vegetable,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0058,DUMMY_GA_S0064,DUMMY_U009,2026-07-15 09:42:01+00:00,"Can you explain: my child keeps waking at night, what should I do?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,negative,DUMMY_FB0058,Wrong information | Missing details,The answer did not match the information I was expecting.,DUMMY_CONV_DUMMY_GA_S0064,DUMMY_R0058,DUMMY_M0058,pre_lq,lp_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you explain my child keeps waking at night what should i do,2026-07-15,2026-07-13,False,,Sleep,,rule_based,False,,waking,Sleep,rule_based
+DUMMY_Q0041,DUMMY_GA_S0045,DUMMY_U042,2026-07-16 10:02:35+00:00,What sports are suitable for primary school children?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0045,DUMMY_R0041,DUMMY_M0041,pre_lq,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what sports are suitable for primary school children,2026-07-16,2026-07-13,False,,Physical Activity,,rule_based,False,,sport | sports,Physical Activity,rule_based
+DUMMY_Q0042,DUMMY_GA_S0045,DUMMY_U042,2026-07-16 10:03:51+00:00,When do children usually begin losing baby teeth?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Growth & Development,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0045,DUMMY_R0042,DUMMY_M0042,pre_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,when do children usually begin losing baby teeth,2026-07-16,2026-07-13,False,Growth / Development,Growth & Development,,existing_label,False,,,,existing_label
+DUMMY_Q0059,DUMMY_GA_S0068,DUMMY_U002,2026-07-16 11:28:25+00:00,How active should my child be each day?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,positive,DUMMY_FB0059,,,DUMMY_CONV_DUMMY_GA_S0068,DUMMY_R0059,DUMMY_M0059,post_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how active should my child be each day,2026-07-16,2026-07-13,False,Physical Activity,Physical Activity,,existing_label,False,,active,Physical Activity,existing_label
+DUMMY_Q0060,DUMMY_GA_S0068,DUMMY_U002,2026-07-16 11:29:57+00:00,How should medicine be stored during a family holiday?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children's medicines and doses depend on the specific product, the child's age or weight, and professional instructions. Adult dosing should not be assumed to be suitable.
+
+Check the medicine label and use the supplied measuring device. If the dose is unclear or the medicine was not prescribed for your child, confirm with a pharmacist or healthcare professional before giving it.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Medication,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0068,DUMMY_R0060,DUMMY_M0060,post_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how should medicine be stored during a family holiday,2026-07-16,2026-07-13,False,Medication,Medication,,existing_label,False,,medicine,Medication,existing_label
+DUMMY_Q0051,DUMMY_GA_S0056,DUMMY_U044,2026-07-16 16:41:21+00:00,What is enough sleep for a primary school child?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0056,DUMMY_R0051,DUMMY_M0051,post_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what is enough sleep for a primary school child,2026-07-16,2026-07-13,False,,Sleep,,rule_based,False,,sleep,Sleep,rule_based
+DUMMY_Q0049,DUMMY_GA_S0055,DUMMY_U049,2026-07-16 18:10:03+00:00,What should I watch for after a minor playground fall?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The next step depends on the symptom, how long it has lasted, how your child is behaving, and whether there are warning signs.
+
+Monitor temperature, fluids, alertness, breathing, and symptom changes. Seek urgent medical help for breathing difficulty, unusual drowsiness, severe pain, dehydration, or any rapid deterioration.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Symptoms / Illness,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0055,DUMMY_R0049,DUMMY_M0049,pre_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what should i watch for after a minor playground fall,2026-07-16,2026-07-13,False,Symptoms / Illness,Symptoms / Illness,,existing_label,False,,,,existing_label
+DUMMY_Q0050,DUMMY_GA_S0055,DUMMY_U049,2026-07-16 18:10:57+00:00,Is my child's height normal for their age?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Growth & Development,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0055,DUMMY_R0050,DUMMY_M0050,pre_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,is my child s height normal for their age,2026-07-16,2026-07-13,False,Growth / Development,Growth & Development,,existing_label,False,,height,Growth & Development,existing_label
+DUMMY_Q0043,DUMMY_GA_S0046,DUMMY_U042,2026-07-17 16:29:57+00:00,Can you explain: how can I get my child to eat more vegetables?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0046,DUMMY_R0043,DUMMY_M0043,post_lq,ws_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you explain how can i get my child to eat more vegetables,2026-07-17,2026-07-13,False,,Healthy Eating / Nutrition,,rule_based,False,,eat | vegetable,Healthy Eating / Nutrition,rule_based
+DUMMY_Q0023,DUMMY_GA_S0025,DUMMY_U034,2026-07-17 17:16:05+00:00,Are rest days useful for a child who trains competitively?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0025,DUMMY_R0023,DUMMY_M0023,post_lq,ws_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,are rest days useful for a child who trains competitively,2026-07-17,2026-07-13,False,Physical Activity,Physical Activity,,existing_label,False,,,,existing_label
+DUMMY_Q0024,DUMMY_GA_S0025,DUMMY_U034,2026-07-17 17:17:22+00:00,Which nutritious snacks can I pack for school?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,positive,DUMMY_FB0024,,,DUMMY_CONV_DUMMY_GA_S0025,DUMMY_R0024,DUMMY_M0024,post_lq,ws_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,which nutritious snacks can i pack for school,2026-07-17,2026-07-13,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,snack,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0025,DUMMY_GA_S0025,DUMMY_U034,2026-07-17 17:17:54+00:00,How many minutes of physical activity should a primary school child get?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,,,,positive,DUMMY_FB0025,,,DUMMY_CONV_DUMMY_GA_S0025,DUMMY_R0025,DUMMY_M0025,post_lq,ws_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how many minutes of physical activity should a primary school child get,2026-07-17,2026-07-13,False,Physical Activity,Physical Activity,,existing_label,False,,physical activity,Physical Activity,existing_label
+DUMMY_Q0021,DUMMY_GA_S0021,DUMMY_U031,2026-07-18 08:30:52+00:00,Is my child's height normal for their age?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Growth & Development,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0021,DUMMY_R0021,DUMMY_M0021,post_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,is my child s height normal for their age,2026-07-18,2026-07-13,False,,Growth & Development,,rule_based,False,,height,Growth & Development,rule_based
+DUMMY_Q0089,DUMMY_GA_S0103,DUMMY_U046,2026-07-18 10:46:12+00:00,How much exercise does my child need?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,,,,,,,,DUMMY_CONV_DUMMY_GA_S0103,DUMMY_R0089,DUMMY_M0089,post_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how much exercise does my child need,2026-07-18,2026-07-13,False,,Physical Activity,,rule_based,False,,exercise,Physical Activity,rule_based
+DUMMY_Q0047,DUMMY_GA_S0048,DUMMY_U011,2026-07-18 11:57:14+00:00,How active should my child be each day?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0048,DUMMY_R0047,DUMMY_M0047,post_lq,lp_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how active should my child be each day,2026-07-18,2026-07-13,False,,Physical Activity,,rule_based,False,,active,Physical Activity,rule_based
+DUMMY_Q0011,DUMMY_GA_S0011,DUMMY_U004,2026-07-18 19:28:57+00:00,Where can I find my child's health plan?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available health plan information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Parent Portal Navigation,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0011,DUMMY_R0011,DUMMY_M0011,pre_lq,ws_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,where can i find my child s health plan,2026-07-18,2026-07-13,False,Health Plan,Parent Portal Navigation,Health Plan,intent_normalized,True,reliable_label_conflicts_with_explicit_navigation_intent,where can i find,Parent Portal Navigation,intent_normalized
+DUMMY_Q0022,DUMMY_GA_S0022,DUMMY_U053,2026-07-18 20:55:00+00:00,How many minutes of physical activity should a primary school child get?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,True,False,False,,,,,DUMMY_CONV_DUMMY_GA_S0022,DUMMY_R0022,DUMMY_M0022,post_lq,ws_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how many minutes of physical activity should a primary school child get,2026-07-18,2026-07-13,False,,Physical Activity,,rule_based,False,,physical activity,Physical Activity,rule_based
+DUMMY_Q0019,DUMMY_GA_S0020,DUMMY_U058,2026-07-19 10:15:03+00:00,How do I understand my child's BMI?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Growth & Development,False,False,True,positive,DUMMY_FB0019,,,DUMMY_CONV_DUMMY_GA_S0020,DUMMY_R0019,DUMMY_M0019,post_screening,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i understand my child s bmi,2026-07-19,2026-07-13,False,Growth / Development,Growth & Development,,existing_label,False,,bmi,Growth & Development,existing_label
+DUMMY_Q0020,DUMMY_GA_S0020,DUMMY_U058,2026-07-19 10:16:02+00:00,How can I get my child to eat more vegetables?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0020,DUMMY_R0020,DUMMY_M0020,post_screening,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how can i get my child to eat more vegetables,2026-07-19,2026-07-13,False,,Healthy Eating / Nutrition,,rule_based,False,,eat | vegetable,Healthy Eating / Nutrition,rule_based
+DUMMY_Q0003,DUMMY_GA_S0003,DUMMY_U002,2026-07-20 14:51:01+00:00,What should I do if a medicine dose was missed?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children's medicines and doses depend on the specific product, the child's age or weight, and professional instructions. Adult dosing should not be assumed to be suitable.
+
+Check the medicine label and use the supplied measuring device. If the dose is unclear or the medicine was not prescribed for your child, confirm with a pharmacist or healthcare professional before giving it.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Medication,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0003,DUMMY_R0003,DUMMY_M0003,post_screening,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what should i do if a medicine dose was missed,2026-07-20,2026-07-20,False,,Medication,,rule_based,False,,medicine | dose,Medication,rule_based
+DUMMY_Q0062,DUMMY_GA_S0071,DUMMY_U047,2026-07-21 16:23:33+00:00,What is enough sleep for a primary school child?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,positive,DUMMY_FB0062,,,DUMMY_CONV_DUMMY_GA_S0071,DUMMY_R0062,DUMMY_M0062,post_screening,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what is enough sleep for a primary school child,2026-07-21,2026-07-20,False,Sleep,Sleep,,existing_label,False,,sleep,Sleep,existing_label
+DUMMY_Q0063,DUMMY_GA_S0071,DUMMY_U047,2026-07-21 16:24:11+00:00,Can you suggest healthier snack ideas for children?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0071,DUMMY_R0063,DUMMY_M0063,post_screening,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you suggest healthier snack ideas for children,2026-07-21,2026-07-20,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,snack,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0018,DUMMY_GA_S0019,DUMMY_U022,2026-07-22 13:54:44+00:00,How can I reduce my child's screen time?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+A workable screen routine balances sleep, school, movement, family time, and recreation rather than focusing only on a single number.
+
+Agree on consistent device-free times, give a warning before stopping, and offer a clear alternative activity. Adults following the same household rules can make them easier to maintain.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Screen Use,,,,positive,DUMMY_FB0018,,,DUMMY_CONV_DUMMY_GA_S0019,DUMMY_R0018,DUMMY_M0018,pre_lq,lp_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how can i reduce my child s screen time,2026-07-22,2026-07-20,False,,Screen Use,,rule_based,False,,screen time,Screen Use,rule_based
+DUMMY_Q0095,DUMMY_GA_S0112,DUMMY_U026,2026-07-24 13:15:13+00:00,How many hours of sleep does a child need?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Sleep,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0112,DUMMY_R0095,DUMMY_M0095,post_lq,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how many hours of sleep does a child need,2026-07-24,2026-07-20,False,Sleep,Sleep,,existing_label,False,,sleep,Sleep,existing_label
+DUMMY_Q0067,DUMMY_GA_S0073,DUMMY_U032,2026-07-26 09:14:12+00:00,How active should my child be each day?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,False,False,True,positive,DUMMY_FB0067,,,DUMMY_CONV_DUMMY_GA_S0073,DUMMY_R0067,DUMMY_M0067,post_lq,lp_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how active should my child be each day,2026-07-26,2026-07-20,False,Physical Activity,Physical Activity,,existing_label,False,,active,Physical Activity,existing_label
+DUMMY_Q0036,DUMMY_GA_S0042,DUMMY_U039,2026-07-26 12:11:54+00:00,How do I encourage more vegetables at meals?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Healthy Eating / Nutrition,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0042,DUMMY_R0036,DUMMY_M0036,post_screening,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how do i encourage more vegetables at meals,2026-07-26,2026-07-20,False,Nutrition,Healthy Eating / Nutrition,,existing_label,False,,meal | vegetable,Healthy Eating / Nutrition,existing_label
+DUMMY_Q0012,DUMMY_GA_S0012,DUMMY_U017,2026-08-04 18:37:42+00:00,My child has breathing difficulty; should I seek urgent help?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The next step depends on the symptom, how long it has lasted, how your child is behaving, and whether there are warning signs.
+
+Monitor temperature, fluids, alertness, breathing, and symptom changes. Seek urgent medical help for breathing difficulty, unusual drowsiness, severe pain, dehydration, or any rapid deterioration.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Symptoms / Illness,False,True,True,negative,DUMMY_FB0012,Not relevant,The response did not address the question I was trying to ask.,DUMMY_CONV_DUMMY_GA_S0012,DUMMY_R0012,DUMMY_M0012,post_screening,ws_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,my child has breathing difficulty should i seek urgent help,2026-08-04,2026-08-03,False,Symptoms / Illness,Symptoms / Illness,,existing_label,False,,,,existing_label
+DUMMY_Q0013,DUMMY_GA_S0012,DUMMY_U017,2026-08-04 18:38:07+00:00,Can I give an adult medicine dose to my child?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children's medicines and doses depend on the specific product, the child's age or weight, and professional instructions. Adult dosing should not be assumed to be suitable.
+
+Check the medicine label and use the supplied measuring device. If the dose is unclear or the medicine was not prescribed for your child, confirm with a pharmacist or healthcare professional before giving it.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Medication,False,True,True,,,,,DUMMY_CONV_DUMMY_GA_S0012,DUMMY_R0013,DUMMY_M0013,post_screening,ws_quick_replies,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can i give an adult medicine dose to my child,2026-08-04,2026-08-03,False,Medication,Medication,,existing_label,False,,medicine | dose,Medication,existing_label
+DUMMY_Q0001,DUMMY_GA_S0002,DUMMY_U024,2026-08-06 09:59:10+00:00,When is my child's next health screening?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available health screening information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Health Screening,False,False,True,negative,DUMMY_FB0001,Wrong information | Missing details,The answer did not match the information I was expecting.,DUMMY_CONV_DUMMY_GA_S0002,DUMMY_R0001,DUMMY_M0001,post_screening,ws_quick_replies,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,when is my child s next health screening,2026-08-06,2026-08-03,False,Health Screening,Health Screening,Health Screening,existing_label,False,,health screening | screening,Health Screening,existing_label
+DUMMY_Q0002,DUMMY_GA_S0002,DUMMY_U024,2026-08-06 09:59:38+00:00,Where can I see my child's vaccination schedule?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available vaccination information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Vaccination,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0002,DUMMY_R0002,DUMMY_M0002,post_screening,ws_quick_replies,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,where can i see my child s vaccination schedule,2026-08-06,2026-08-03,False,Vaccination,Vaccination,,existing_label,False,,vaccination,Vaccination,existing_label
+DUMMY_Q0048,DUMMY_GA_S0053,DUMMY_U025,2026-08-06 13:37:54+00:00,Can you explain: how can I help my child manage school stress?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available mental / emotional wellbeing information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Wellbeing / Emotional Health,False,False,True,positive,DUMMY_FB0048,,,DUMMY_CONV_DUMMY_GA_S0053,DUMMY_R0048,DUMMY_M0048,pre_lq,about_us,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,can you explain how can i help my child manage school stress,2026-08-06,2026-08-03,False,Mental / Emotional Wellbeing,Wellbeing / Emotional Health,,existing_label,False,,stress,Wellbeing / Emotional Health,existing_label
+DUMMY_Q0064,DUMMY_GA_S0072,DUMMY_U010,2026-08-06 19:43:16+00:00,Who receives the report after a school health visit?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available school health information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",School Health,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0072,DUMMY_R0064,DUMMY_M0064,post_lq,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,who receives the report after a school health visit,2026-08-06,2026-08-03,False,,School Health,,rule_based,False,,school health,School Health,rule_based
+DUMMY_Q0065,DUMMY_GA_S0072,DUMMY_U010,2026-08-06 19:43:40+00:00,How much exercise does my child need?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Children can build activity through play, walking, games, sport, and short movement breaks; it does not all need to happen at once.
+
+Choose activities your child enjoys and build them into the normal day. Start with achievable periods, add variety, and make the routine easier by joining in as a family.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Physical Activity,,,,positive,DUMMY_FB0065,,,DUMMY_CONV_DUMMY_GA_S0072,DUMMY_R0065,DUMMY_M0065,post_lq,bottom_nav,DUMMY_FAQ,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,how much exercise does my child need,2026-08-06,2026-08-03,False,Physical Activity,Physical Activity,,existing_label,False,,exercise,Physical Activity,existing_label
+DUMMY_Q0066,DUMMY_GA_S0072,DUMMY_U010,2026-08-06 19:44:03+00:00,Does my child need glasses after a borderline vision check?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available health screening information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Other,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0072,DUMMY_R0066,DUMMY_M0066,post_lq,bottom_nav,,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,does my child need glasses after a borderline vision check,2026-08-06,2026-08-03,False,,Other,,other,True,no_primary_topic_rule_matched,,,other
+DUMMY_Q0087,DUMMY_GA_S0099,DUMMY_U030,2026-08-08 10:09:31+00:00,What should I do about a persistent cough?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The next step depends on the symptom, how long it has lasted, how your child is behaving, and whether there are warning signs.
+
+Monitor temperature, fluids, alertness, breathing, and symptom changes. Seek urgent medical help for breathing difficulty, unusual drowsiness, severe pain, dehydration, or any rapid deterioration.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",Symptoms / Illness,False,False,True,,,,,DUMMY_CONV_DUMMY_GA_S0099,DUMMY_R0087,DUMMY_M0087,post_lq,bottom_nav,DUMMY_CONTENT,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA,what should i do about a persistent cough,2026-08-08,2026-08-03,False,,Symptoms / Illness,,rule_based,False,,cough,Symptoms / Illness,rule_based

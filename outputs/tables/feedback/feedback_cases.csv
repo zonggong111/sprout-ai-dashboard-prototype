@@ -1,0 +1,71 @@
+feedback_id,query_id,conversation_id,response_id,message_id,question_category,user_query,ai_response,feedback_type,feedback_comment,timestamp,journey_stage,entry_point,anonymised_session_id,beta_or_production,data_notice
+DUMMY_FB0004,DUMMY_Q0004,DUMMY_CONV_DUMMY_GA_S0004,DUMMY_R0004,DUMMY_M0004,Lifestyle Questionnaire,How do I complete the Lifestyle Questionnaire?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available lifestyle questionnaire information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",negative,,2026-06-04 18:25:28+00:00,pre_lq,lp_quick_replies,DUMMY_GA_S0004,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA
+DUMMY_FB0074,DUMMY_Q0074,DUMMY_CONV_DUMMY_GA_S0077,DUMMY_R0074,DUMMY_M0074,Growth & Development,How do I understand my child's BMI?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Growth and development vary between children and are best understood as a pattern over time rather than from one measurement or milestone.
+
+Record the change you have noticed and any related concerns. Bring this information to your child's healthcare professional, who can review it alongside previous measurements and development history.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",negative,,2026-06-07 08:44:03+00:00,post_screening,lp_quick_replies,DUMMY_GA_S0077,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA
+DUMMY_FB0028,DUMMY_Q0028,DUMMY_CONV_DUMMY_GA_S0033,DUMMY_R0028,DUMMY_M0028,Wellbeing / Emotional Health,"My child seems anxious, how can I help?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available mental / emotional wellbeing information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",negative,,2026-06-07 18:33:18+00:00,post_screening,lp_quick_replies,DUMMY_GA_S0033,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA
+DUMMY_FB0033,DUMMY_Q0033,DUMMY_CONV_DUMMY_GA_S0037,DUMMY_R0033,DUMMY_M0033,Sleep,"My child keeps waking at night, what should I do?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",negative,The response took too long or the interaction did not work as expected.,2026-06-19 17:12:23+00:00,post_screening,lp_quick_replies,DUMMY_GA_S0037,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA
+DUMMY_FB0034,DUMMY_Q0034,DUMMY_CONV_DUMMY_GA_S0037,DUMMY_R0034,DUMMY_M0034,Sleep,"My child keeps waking at night, what should I do?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",negative,,2026-06-19 17:13:31+00:00,post_screening,lp_quick_replies,DUMMY_GA_S0037,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA
+DUMMY_FB0072,DUMMY_Q0072,DUMMY_CONV_DUMMY_GA_S0076,DUMMY_R0072,DUMMY_M0072,Wellbeing / Emotional Health,How can I help my child manage school stress?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available mental / emotional wellbeing information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",negative,The response did not address the question I was trying to ask.,2026-07-13 08:51:48+00:00,post_lq,bottom_nav,DUMMY_GA_S0076,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA
+DUMMY_FB0071,DUMMY_Q0071,DUMMY_CONV_DUMMY_GA_S0075,DUMMY_R0071,DUMMY_M0071,Healthy Eating / Nutrition,What can I do if my child refuses vegetables?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+It can take repeated, low-pressure exposure before a child accepts a new food. A balanced pattern across the week is usually more useful than judging one meal.
+
+Try offering one familiar food alongside a small portion of the new food, involve your child in choosing or preparing it, and avoid forcing them to finish. Keep regular meal and snack times where possible.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",negative,,2026-07-13 17:19:46+00:00,pre_lq,bottom_nav,DUMMY_GA_S0075,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA
+DUMMY_FB0058,DUMMY_Q0058,DUMMY_CONV_DUMMY_GA_S0064,DUMMY_R0058,DUMMY_M0058,Sleep,"Can you explain: my child keeps waking at night, what should I do?","SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+Night waking can be affected by routine, the sleep environment, worries, illness, or normal changes in sleep patterns. Looking for a repeated pattern can help identify what to adjust.
+
+Keep bedtime and wake time consistent, use a calm wind-down routine, and make the room quiet and comfortable. Note when waking happens and how your child settles again for several nights.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",negative,The answer did not match the information I was expecting.,2026-07-15 09:42:01+00:00,pre_lq,lp_quick_replies,DUMMY_GA_S0064,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA
+DUMMY_FB0012,DUMMY_Q0012,DUMMY_CONV_DUMMY_GA_S0012,DUMMY_R0012,DUMMY_M0012,Symptoms / Illness,My child has breathing difficulty; should I seek urgent help?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+The next step depends on the symptom, how long it has lasted, how your child is behaving, and whether there are warning signs.
+
+Monitor temperature, fluids, alertness, breathing, and symptom changes. Seek urgent medical help for breathing difficulty, unusual drowsiness, severe pain, dehydration, or any rapid deterioration.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",negative,The response did not address the question I was trying to ask.,2026-08-04 18:37:42+00:00,post_screening,ws_quick_replies,DUMMY_GA_S0012,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA
+DUMMY_FB0001,DUMMY_Q0001,DUMMY_CONV_DUMMY_GA_S0002,DUMMY_R0001,DUMMY_M0001,Health Screening,When is my child's next health screening?,"SYNTHETIC RESPONSE — DEMONSTRATION ONLY
+
+This demonstration answer explains the available health screening information in plain language and connects it to the relevant Parent Portal feature where appropriate.
+
+Review the suggested next steps, note any information that is missing, and contact the appropriate service or healthcare professional if personalised support is needed.
+
+This synthetic example is provided only to demonstrate the review workflow. It is not personalised medical advice; seek professional help when symptoms are severe, persistent, or concerning.",negative,The answer did not match the information I was expecting.,2026-08-06 09:59:10+00:00,post_screening,ws_quick_replies,DUMMY_GA_S0002,Beta,SYNTHETIC DUMMY DATA - NOT REAL HPB OR PARENT DATA
