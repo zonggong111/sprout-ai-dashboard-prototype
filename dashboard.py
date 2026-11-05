@@ -5,6 +5,7 @@ from __future__ import annotations
 import html
 import hashlib
 import os
+from contextlib import contextmanager
 from datetime import date
 from pathlib import Path
 
@@ -397,6 +398,9 @@ PLOTLY_CONFIG = {
 
 def _plotly_chart(figure: go.Figure) -> None:
     """Render charts with one unobtrusive, consistent interaction toolbar."""
+    figure.update_layout(autosize=True)
+    figure.update_xaxes(automargin=True)
+    figure.update_yaxes(automargin=True)
     st.plotly_chart(figure, width="stretch", config=PLOTLY_CONFIG)
 
 
@@ -405,6 +409,67 @@ def _chart_heading(title: str, subtitle: str = "") -> None:
     st.markdown(f'<h4 class="chart-title">{html.escape(title)}</h4>', unsafe_allow_html=True)
     if subtitle:
         st.markdown(f'<div class="chart-subtitle">{html.escape(subtitle)}</div>', unsafe_allow_html=True)
+
+
+def _chart_caption(text: str) -> None:
+    """Render a readable card footer that remains inside its card boundary."""
+    st.caption(text)
+
+
+@contextmanager
+def _chart_card(title: str, subtitle: str = "", *, key: str):
+    """Provide one flexible title / visual / caption card structure."""
+    with st.container(border=True, key=f"chart_card_{key}"):
+        _chart_heading(title, subtitle)
+        yield
+
+
+@contextmanager
+def _summary_card(title: str, *, key: str):
+    """Use the shared card shell while preserving summary-card hierarchy."""
+    with st.container(border=True, key=f"chart_card_{key}"):
+        _summary_heading(title)
+        yield
+
+
+def _render_audience_mix(mix: pd.DataFrame) -> None:
+    """Render a compact, accessible comparison without a large label gutter."""
+    if mix.empty or not {"user_type", "user_count"}.issubset(mix):
+        st.info("No audience mix is available for the selected period.")
+        return
+    counts: dict[str, float] = {}
+    for _, row in mix.iterrows():
+        value = pd.to_numeric(row["user_count"], errors="coerce")
+        counts[str(row["user_type"]).strip()] = 0 if pd.isna(value) else float(value)
+    categories = [("Returning", "Returning users", "#167C80"),
+                  ("First-time", "First-time users", "#4F7FA3")]
+    total = sum(max(counts.get(source, 0), 0) for _, source, _ in categories)
+    definitions_complete = all(source in counts for _, source, _ in categories) and total > 0
+    if total <= 0:
+        st.info("No users were recorded for the selected period.")
+        return
+    rows = []
+    for label, source, color in categories:
+        count = max(counts.get(source, 0), 0)
+        share = count / total
+        share_text = f'<span class="audience-share">{share:.1%}</span>' if definitions_complete else ""
+        rows.append(
+            '<div class="audience-row">'
+            '<div class="audience-row-header">'
+            f'<span class="audience-label">{label}</span>'
+            f'<span class="audience-count">{count:,.0f}</span>{share_text}'
+            '</div>'
+            '<div class="audience-track" aria-hidden="true">'
+            f'<span class="audience-fill" style="width:{share:.3%};background:{color}"></span>'
+            '</div></div>'
+        )
+    st.markdown(
+        '<div class="audience-mix" role="img" '
+        f'aria-label="Returning users {counts.get("Returning users", 0):,.0f}; '
+        f'First-time users {counts.get("First-time users", 0):,.0f}">'
+        + "".join(rows) + '</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def _section_intro(title: str, description: str = "") -> None:
@@ -465,7 +530,7 @@ def render_report_header(
         st.session_state["global_granularity"] = "Week"
     with st.container(key="global_filter_toolbar"):
         period_col, date_col, grain_col, reset_col = st.columns(
-            [1.45, 1.45, 1.35, .55], vertical_alignment="center"
+            [1.45, 1.45, 1.35, .72], vertical_alignment="bottom"
         )
         with period_col:
             st.markdown('<div class="filter-label">Period</div>', unsafe_allow_html=True)
@@ -483,6 +548,10 @@ def render_report_header(
                 label_visibility="collapsed",
             )
         with reset_col:
+            st.markdown(
+                '<div class="filter-label filter-label-spacer" aria-hidden="true">Action</div>',
+                unsafe_allow_html=True,
+            )
             st.button(
                 "Reset", key="reset_global_filters", width="stretch",
                 on_click=_reset_global_filters,
@@ -597,8 +666,11 @@ def render_portal_usage_section(events: pd.DataFrame, granularity: str) -> None:
     mix = portal_user_mix(events)
     trend_col, mix_col = st.container(key="portal_trends").columns([7, 3], gap="medium")
     with trend_col:
-        with st.container(border=True):
-            _chart_heading(f"{granularity} usage trend", "Compare reach and page-view activity over the selected period.")
+        with _chart_card(
+            f"{granularity} usage trend",
+            "Compare reach and page-view activity over the selected period.",
+            key="portal_usage_trend",
+        ):
             mode = st.segmented_control(
                 "Usage measure",
                 ["Both", "Unique users", "Page views"],
@@ -621,28 +693,25 @@ def render_portal_usage_section(events: pd.DataFrame, granularity: str) -> None:
                 )
                 figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
                 _plotly_chart(figure)
-                st.caption(f"Unique users are deduplicated within each {granularity.lower()} and must not be added across periods.")
+                _chart_caption(f"Unique users are deduplicated within each {granularity.lower()} and must not be added across periods.")
             else:
                 _show_missing("Portal usage trend could not be calculated.")
     with mix_col:
-        with st.container(border=True):
-            _chart_heading("New vs returning users", "Selected-period audience mix.")
-            figure = px.bar(
-                mix, x="user_count", y="user_type", orientation="h", text="user_count",
-                labels={"user_count": "Users", "user_type": ""},
-                color_discrete_sequence=["#167C80"],
-            )
-            figure.update_traces(customdata=mix["share"], hovertemplate="%{y}<br>%{x:.0f} users · %{customdata:.1%}<extra></extra>")
-            figure.update_layout(height=270, margin=dict(l=5, r=10, t=20, b=5))
-            figure.update_xaxes(gridcolor="#E9EEEE", rangemode="tozero")
-            _plotly_chart(figure)
-            st.caption("Uses the synthetic first-login flag; the production GA definition remains to be validated.")
+        with _chart_card(
+            "New vs returning users", "Selected-period audience mix.",
+            key="audience_mix",
+        ):
+            _render_audience_mix(mix)
+            _chart_caption("Uses the synthetic first-login flag; the production GA definition remains to be validated.")
 
     _section_intro("Engagement & Access Patterns", "When parents use the portal and how they progress into Sprout AI.")
     heatmap_col, funnel_col = st.container(key="portal_patterns").columns([6.5, 3.5], gap="medium")
     with heatmap_col:
-        with st.container(border=True):
-            _chart_heading("Usage by weekday and hour", "Page views are converted from UTC to Singapore Time before grouping.")
+        with _chart_card(
+            "Usage by weekday and hour",
+            "Page views are converted from UTC to Singapore Time before grouping.",
+            key="portal_activity_pattern",
+        ):
             activity_view = st.segmented_control(
                 "Activity view", ["Heatmap", "Hourly trend"], default="Heatmap",
                 key="portal_activity_view", label_visibility="collapsed",
@@ -706,13 +775,16 @@ def render_portal_usage_section(events: pd.DataFrame, granularity: str) -> None:
                 f"{invalid_timestamps} page-view record(s) with invalid timestamps were excluded. "
                 if invalid_timestamps else ""
             )
-            st.caption(
+            _chart_caption(
                 "Neutral pale cells are recorded zero page views; they are not login counts or unique users. "
                 + missing_note + invalid_note + "Hover for exact SGT values."
             )
     with funnel_col:
-        with st.container(border=True):
-            _chart_heading("User engagement funnel", "How many distinct users progress from portal use to a message.")
+        with _chart_card(
+            "User engagement funnel",
+            "How many distinct users progress from portal use to a message.",
+            key="portal_funnel",
+        ):
             funnel = engagement_funnel(events)
             if not funnel.empty:
                 figure = go.Figure(go.Funnel(
@@ -721,7 +793,7 @@ def render_portal_usage_section(events: pd.DataFrame, granularity: str) -> None:
                 ))
                 figure.update_layout(height=300, margin=dict(l=10, r=10, t=20, b=5))
                 _plotly_chart(figure)
-                st.caption("All stages use distinct synthetic users; percentages use Parent Portal users as the denominator.")
+                _chart_caption("All stages use distinct synthetic users; percentages use Parent Portal users as the denominator.")
             else:
                 _show_missing("The proposed engagement funnel could not be calculated.")
 
@@ -739,41 +811,61 @@ def render_engagement_page(tables: dict[str, pd.DataFrame], filters: dict[str, o
     render_portal_usage_section(filtered_events, granularity)
     values = _engagement_values(filtered, daily, tables["engagement_kpis"])
     _section_intro("Sprout Conversation Journey", "How portal sessions progress from entry to active conversation.")
-    cards = st.container(key="journey_metrics").columns(5)
-    for card, label, value, help_text in zip(cards, [
-        "Entered Sprout AI", "Started a conversation", "Entry-to-conversation conversion",
-        "User messages sent", "Average messages per active conversation",
-    ], [_format_count(values["entries"]), _format_count(values["active"]), _format_rate(values["activation"]),
-        _format_count(values["messages"]), _format_number(values["depth"])], [
-        "Distinct sessions reaching the chat experience.",
-        "Distinct entered sessions sending at least one user message.",
-        "Started conversation sessions divided by entered sessions.",
-        "Tracked user-message events.", "User messages divided by active conversation sessions.",
-    ]):
-        card.metric(label, value, help=help_text)
+    journey = st.container(key="journey_metrics")
+    conversion_group, activity_group = journey.columns([3, 2], gap="medium")
+    with conversion_group, st.container(key="journey_conversion"):
+        st.markdown('<div class="metric-group-label">Conversion journey</div>', unsafe_allow_html=True)
+        conversion_cards = st.columns(3)
+        for card, label, value, help_text in zip(conversion_cards, [
+            "Entered Sprout AI", "Conversations Started", "Conversion Rate",
+        ], [
+            _format_count(values["entries"]), _format_count(values["active"]),
+            _format_rate(values["activation"]),
+        ], [
+            "Distinct sessions reaching the chat experience.",
+            "Distinct entered sessions sending at least one user message.",
+            "Conversations started divided by sessions that entered Sprout AI.",
+        ]):
+            card.metric(label, value, help=help_text)
+    with activity_group, st.container(key="journey_activity"):
+        st.markdown('<div class="metric-group-label">Conversation activity</div>', unsafe_allow_html=True)
+        activity_cards = st.columns(2)
+        for card, label, value, help_text in zip(activity_cards, [
+            "Messages Sent", "Messages per Conversation",
+        ], [
+            _format_count(values["messages"]), _format_number(values["depth"]),
+        ], [
+            "Tracked user-message events; this is activity volume, not another funnel stage.",
+            "User messages divided by active conversation sessions; this is an average, not a funnel stage.",
+        ]):
+            card.metric(label, value, help=help_text)
     _section_intro(f"Conversation Activity by {granularity}", "Compare conversation starts with user-message volume.")
     chart, notes = st.container(key="activity_section").columns([7, 3], gap="medium")
     with chart:
-        _chart_heading("Conversation activity trend", "Toggle between both measures or focus on a single series.")
-        mode = st.segmented_control("Trend measure", ["Both", "Started conversations", "User messages sent"],
-                                    default="Both", key="engagement_trend_mode", label_visibility="collapsed")
-        if not filtered.empty and "event_date" in filtered:
-            trend = aggregate_engagement(filtered, granularity).rename(columns={"period": "event_date"})
-            _plotly_chart(engagement_trend_figure(trend, mode or "Both"))
-        else:
-            trend = pd.DataFrame()
-            _show_missing("Activity data could not be loaded.")
+        with _chart_card(
+            "Conversation activity trend",
+            "Toggle between both measures or focus on a single series.",
+            key="conversation_activity",
+        ):
+            mode = st.segmented_control("Trend measure", ["Both", "Started conversations", "User messages sent"],
+                                        default="Both", key="engagement_trend_mode", label_visibility="collapsed")
+            if not filtered.empty and "event_date" in filtered:
+                trend = aggregate_engagement(filtered, granularity).rename(columns={"period": "event_date"})
+                _plotly_chart(engagement_trend_figure(trend, mode or "Both"))
+            else:
+                trend = pd.DataFrame()
+                _show_missing("Activity data could not be loaded.")
     with notes:
-        _summary_heading("Activity summary")
-        if not trend.empty:
-            _summary_item("Recorded period", f"{len(trend)} {granularity.lower()} periods")
-            for field, label in [("active_chat_sessions", "Peak started conversations"), ("chat_messages_sent", "Peak user messages")]:
-                if field in trend:
-                    _summary_item(label, _format_count(trend[field].max()))
-            if "active_chat_sessions" in trend:
-                peak = trend.sort_values(["active_chat_sessions", "event_date"], ascending=[False, True]).iloc[0]
-                _summary_item("Most active date · conversation starts", str(peak["event_date"])[:10])
-            st.caption("Peaks describe recorded usage; release timing and entry routes may help explain changes.")
+        with _summary_card("Activity summary", key="conversation_activity_summary"):
+            if not trend.empty:
+                _summary_item("Recorded period", f"{len(trend)} {granularity.lower()} periods")
+                for field, label in [("active_chat_sessions", "Peak started conversations"), ("chat_messages_sent", "Peak user messages")]:
+                    if field in trend:
+                        _summary_item(label, _format_count(trend[field].max()))
+                if "active_chat_sessions" in trend:
+                    peak = trend.sort_values(["active_chat_sessions", "event_date"], ascending=[False, True]).iloc[0]
+                    _summary_item("Most active date · conversation starts", str(peak["event_date"])[:10])
+                _chart_caption("Peaks describe recorded usage; release timing and entry routes may help explain changes.")
 
     _section_intro("How Parents Enter Sprout AI", "Compare usage and entry-to-conversation conversion across access routes.")
     entry = entry_point_performance(filtered_events)
@@ -781,42 +873,46 @@ def render_engagement_page(tables: dict[str, pd.DataFrame], filters: dict[str, o
         entry = tables["entry_point_effectiveness"]
     chart, notes = st.container(key="entry_section").columns([7, 3], gap="medium")
     with chart:
-        _chart_heading("Entry-point performance", "Entered sessions and started conversations by access route.")
-        with st.expander("Entry-point filter", expanded=False):
-            selected = st.multiselect("Entry point", _values([entry], "entry_point"), format_func=_human_label, key="engagement_entry_points")
-        entry = _filter(entry, entry_points=selected)
-        required = {"entry_point", "entry_sessions", "active_chat_sessions", "activation_rate"}
-        if not entry.empty and required.issubset(entry):
-            entry = entry.sort_values("entry_sessions").copy()
-            entry["Entry point"] = entry["entry_point"].map(_human_label)
-            fig = go.Figure()
-            for field, label, color in [("entry_sessions", "Entered Sprout AI", "#A7C8CA"),
-                                        ("active_chat_sessions", "Started a conversation", "#167C80")]:
-                fig.add_bar(y=entry["Entry point"], x=entry[field], orientation="h", name=label,
-                            marker_color=color, text=entry[field], textposition="auto", textangle=0,
-                            customdata=entry["activation_rate"],
-                            hovertemplate="%{y}<br>" + label + ": %{x}<br>Entry-to-conversation conversion: %{customdata:.1%}<extra></extra>")
-            fig.update_layout(height=300, barmode="group", xaxis_title="Sessions",
-                              legend=dict(orientation="h", y=1.15), margin=dict(l=5,r=10,t=40,b=10))
-            fig.update_xaxes(gridcolor="#E9EEEE")
-            _plotly_chart(fig)
-        else:
-            _show_missing("Entry-point data could not be loaded.")
+        with _chart_card(
+            "Entry-point performance",
+            "Entered sessions and started conversations by access route.",
+            key="entry_performance",
+        ):
+            with st.expander("Entry-point filter", expanded=False):
+                selected = st.multiselect("Entry point", _values([entry], "entry_point"), format_func=_human_label, key="engagement_entry_points")
+            entry = _filter(entry, entry_points=selected)
+            required = {"entry_point", "entry_sessions", "active_chat_sessions", "activation_rate"}
+            if not entry.empty and required.issubset(entry):
+                entry = entry.sort_values("entry_sessions").copy()
+                entry["Entry point"] = entry["entry_point"].map(_human_label)
+                fig = go.Figure()
+                for field, label, color in [("entry_sessions", "Entered Sprout AI", "#A7C8CA"),
+                                            ("active_chat_sessions", "Started a conversation", "#167C80")]:
+                    fig.add_bar(y=entry["Entry point"], x=entry[field], orientation="h", name=label,
+                                marker_color=color, text=entry[field], textposition="auto", textangle=0,
+                                customdata=entry["activation_rate"],
+                                hovertemplate="%{y}<br>" + label + ": %{x}<br>Entry-to-conversation conversion: %{customdata:.1%}<extra></extra>")
+                fig.update_layout(height=300, barmode="group", xaxis_title="Sessions",
+                                  legend=dict(orientation="h", y=1.15), margin=dict(l=5,r=10,t=40,b=10))
+                fig.update_xaxes(gridcolor="#E9EEEE")
+                _plotly_chart(fig)
+            else:
+                _show_missing("Entry-point data could not be loaded.")
     with notes:
-        _summary_heading("Entry-point summary")
-        if not entry.empty and required.issubset(entry):
-            for label, field, highest in [("Highest entry volume","entry_sessions",True),
-                                          ("Highest conversion","activation_rate",True),
-                                          ("Lowest conversion","activation_rate",False)]:
-                ordered = entry.dropna(subset=[field]).sort_values([field,"entry_point"], ascending=[not highest,True])
-                if ordered.empty:
-                    continue
-                row = ordered.iloc[0]
-                suffix = f" · {row[field]:.1%}" if field == "activation_rate" else f" · {int(row[field])} sessions"
-                note = (f"{int(row['active_chat_sessions'])} of {int(row['entry_sessions'])} entered sessions started a conversation."
-                        if label == "Lowest conversion" else "")
-                _summary_item(label, _human_label(row["entry_point"]) + suffix, note=note)
-            st.caption("Different routes can reflect different visitor intentions. Ties use alphabetical order.")
+        with _summary_card("Entry-point summary", key="entry_summary"):
+            if not entry.empty and required.issubset(entry):
+                for label, field, highest in [("Highest entry volume","entry_sessions",True),
+                                              ("Highest conversion","activation_rate",True),
+                                              ("Lowest conversion","activation_rate",False)]:
+                    ordered = entry.dropna(subset=[field]).sort_values([field,"entry_point"], ascending=[not highest,True])
+                    if ordered.empty:
+                        continue
+                    row = ordered.iloc[0]
+                    suffix = f" · {row[field]:.1%}" if field == "activation_rate" else f" · {int(row[field])} sessions"
+                    note = (f"{int(row['active_chat_sessions'])} of {int(row['entry_sessions'])} entered sessions started a conversation."
+                            if label == "Lowest conversion" else "")
+                    _summary_item(label, _human_label(row["entry_point"]) + suffix, note=note)
+                _chart_caption("Different routes can reflect different visitor intentions. Ties use alphabetical order.")
 
 
 def render_parent_needs_page(tables: dict[str, pd.DataFrame], filters: dict[str, object]) -> None:
@@ -841,121 +937,133 @@ def render_parent_needs_page(tables: dict[str, pd.DataFrame], filters: dict[str,
     _section_intro("Main Topics & Parent Needs", "What parents ask about most and which needs recur in similar forms.")
     chart, preview = st.container(key="needs_top").columns([6.5, 3.5], gap="medium")
     with chart:
-        _chart_heading("Topic distribution", "Questions ranked by volume in the current filter selection.")
-        if not summary.empty and {"primary_topic","query_count"}.issubset(summary):
-            # Aggregate environments before ranking the complete current selection.
-            summary = summary.groupby("primary_topic", as_index=False)["query_count"].sum()
-            summary["percentage_of_queries"] = summary["query_count"] / summary["query_count"].sum()
-            top = summary.sort_values("query_count").tail(10).copy()
-            top["Share label"] = top.apply(lambda r: f"{int(r['query_count'])} · {r['percentage_of_queries']:.1%}", axis=1)
-            figure = px.bar(top, x="query_count", y="primary_topic", orientation="h", text="Share label",
-                labels={"query_count":"Question count", "primary_topic":"Question Category"}, color_discrete_sequence=["#167C80"])
-            figure.update_traces(textposition="outside", cliponaxis=False)
-            figure.update_xaxes(range=[0, top["query_count"].max()*1.28], gridcolor="#E9EEEE")
-            figure.update_layout(height=max(260, min(360, 28*len(top)+60)), margin=dict(l=5,r=35,t=10,b=10))
-            _plotly_chart(figure)
-            st.caption("Counts and shares use questions in the current global filter selection.")
-        else:
-            _show_missing("Question Category data could not be loaded.")
+        with _chart_card(
+            "Topic distribution",
+            "Questions ranked by volume in the current filter selection.",
+            key="topic_distribution",
+        ):
+            if not summary.empty and {"primary_topic","query_count"}.issubset(summary):
+                # Aggregate environments before ranking the complete current selection.
+                summary = summary.groupby("primary_topic", as_index=False)["query_count"].sum()
+                summary["percentage_of_queries"] = summary["query_count"] / summary["query_count"].sum()
+                top = summary.sort_values("query_count").tail(10).copy()
+                top["Share label"] = top.apply(lambda r: f"{int(r['query_count'])} · {r['percentage_of_queries']:.1%}", axis=1)
+                figure = px.bar(top, x="query_count", y="primary_topic", orientation="h", text="Share label",
+                    labels={"query_count":"Question count", "primary_topic":"Question Category"}, color_discrete_sequence=["#167C80"])
+                figure.update_traces(textposition="outside", cliponaxis=False)
+                figure.update_xaxes(range=[0, top["query_count"].max()*1.28], gridcolor="#E9EEEE")
+                figure.update_layout(height=max(260, min(360, 28*len(top)+60)), margin=dict(l=5,r=35,t=10,b=10))
+                _plotly_chart(figure)
+                _chart_caption("Counts and shares use questions in the current global filter selection.")
+            else:
+                _show_missing("Question Category data could not be loaded.")
     with preview:
-        _chart_heading("Questions requiring attention", "Frequently repeated needs that may warrant clearer support.")
-        if valid_repeated:
-            for _, row in repeated.head(3).iterrows():
-                _grouped_item(
-                    row['representative_question'],
-                    f"{row.get('primary_topic', 'Unclassified')} · {int(row['number_of_similar_questions'])} similar variants",
-                )
-            with st.container(key="repeated_details"), st.expander("View all repeated questions", expanded=False):
-                _display_table(repeated, ["representative_question","primary_topic","number_of_similar_questions"], {
-                    "representative_question":"Representative question", "primary_topic":"Question Category",
-                    "number_of_similar_questions":"Similar variants"})
-                example_columns = [c for c in repeated if c.startswith("example_question_")]
-                if example_columns:
-                    with st.expander("Example phrasings", expanded=False):
-                        for _, row in repeated.head(5).iterrows():
-                            phrases = dict.fromkeys(str(row[c]) for c in example_columns if pd.notna(row[c]))
-                            _grouped_item(row['representative_question'], "\n".join(phrases))
-        else:
-            _show_missing("Repeated-question data could not be loaded.")
+        with _chart_card(
+            "Questions requiring attention",
+            "Frequently repeated needs that may warrant clearer support.",
+            key="questions_attention",
+        ):
+            if valid_repeated:
+                for _, row in repeated.head(3).iterrows():
+                    _grouped_item(
+                        row['representative_question'],
+                        f"{row.get('primary_topic', 'Unclassified')} · {int(row['number_of_similar_questions'])} similar variants",
+                    )
+                with st.container(key="repeated_details"), st.expander("View all repeated questions", expanded=False):
+                    _display_table(repeated, ["representative_question","primary_topic","number_of_similar_questions"], {
+                        "representative_question":"Representative question", "primary_topic":"Question Category",
+                        "number_of_similar_questions":"Similar variants"})
+                    example_columns = [c for c in repeated if c.startswith("example_question_")]
+                    if example_columns:
+                        with st.expander("Example phrasings", expanded=False):
+                            for _, row in repeated.head(5).iterrows():
+                                phrases = dict.fromkeys(str(row[c]) for c in example_columns if pd.notna(row[c]))
+                                _grouped_item(row['representative_question'], "\n".join(phrases))
+            else:
+                _show_missing("Repeated-question data could not be loaded.")
 
     _section_intro(f"Parent Needs Trend by {granularity}", "How selected question categories change over time.")
     chart, notes = st.container(key="needs_trend").columns([7, 3], gap="medium")
     with chart:
-        _chart_heading("Question volume trend", "Choose the leading topics or one category for a focused view.")
-        choice = st.selectbox("Topic trend", ["Top 3 topics", *_values([summary], "primary_topic")], key="needs_trend_topic", label_visibility="collapsed")
-        selected = summary.nlargest(3, "query_count")["primary_topic"].tolist() if choice == "Top 3 topics" and "query_count" in summary else [choice]
-        if not conversations.empty and {"timestamp", "primary_topic"}.issubset(conversations):
-            trend = aggregate_topic_trend(conversations, selected, granularity)
-            figure = go.Figure()
-            colors = ["#167C80", "#B66832", "#6653A1"]
-            date_hover = "%b %Y" if granularity == "Month" else "%d %b %Y"
-            for topic, color in zip(selected, colors):
-                topic_trend = trend.loc[trend["primary_topic"].eq(topic)]
-                figure.add_scatter(
-                    x=topic_trend["period"], y=topic_trend["query_count"],
-                    name=topic, mode="lines+markers", connectgaps=False,
-                    line=dict(width=2.3, color=color), marker=dict(size=6),
-                    hovertemplate=(
-                        f"{html.escape(topic)}<br>%{{x|{date_hover}}}<br>"
-                        "%{y:.0f} questions<extra></extra>"
-                    ),
+        with _chart_card(
+            "Question volume trend",
+            "Choose the leading topics or one category for a focused view.",
+            key="question_volume_trend",
+        ):
+            choice = st.selectbox("Topic trend", ["Top 3 topics", *_values([summary], "primary_topic")], key="needs_trend_topic", label_visibility="collapsed")
+            selected = summary.nlargest(3, "query_count")["primary_topic"].tolist() if choice == "Top 3 topics" and "query_count" in summary else [choice]
+            if not conversations.empty and {"timestamp", "primary_topic"}.issubset(conversations):
+                trend = aggregate_topic_trend(conversations, selected, granularity)
+                figure = go.Figure()
+                colors = ["#167C80", "#B66832", "#6653A1"]
+                date_hover = "%b %Y" if granularity == "Month" else "%d %b %Y"
+                for topic, color in zip(selected, colors):
+                    topic_trend = trend.loc[trend["primary_topic"].eq(topic)]
+                    figure.add_scatter(
+                        x=topic_trend["period"], y=topic_trend["query_count"],
+                        name=topic, mode="lines+markers", connectgaps=False,
+                        line=dict(width=2.3, color=color), marker=dict(size=6),
+                        hovertemplate=(
+                            f"{html.escape(topic)}<br>%{{x|{date_hover}}}<br>"
+                            "%{y:.0f} questions<extra></extra>"
+                        ),
+                    )
+                missing_periods = (
+                    trend.loc[trend["period_status"].eq("No records"), "period"]
+                    .drop_duplicates().sort_values()
                 )
-            missing_periods = (
-                trend.loc[trend["period_status"].eq("No records"), "period"]
-                .drop_duplicates().sort_values()
-            )
-            if not missing_periods.empty:
-                figure.add_scatter(
-                    x=missing_periods, y=[0] * len(missing_periods), name="No records",
-                    mode="markers", marker=dict(symbol="x", size=8, color="#929A9E"),
-                    hovertemplate=f"%{{x|{date_hover}}}<br>No conversation records<extra></extra>",
+                if not missing_periods.empty:
+                    figure.add_scatter(
+                        x=missing_periods, y=[0] * len(missing_periods), name="No records",
+                        mode="markers", marker=dict(symbol="x", size=8, color="#929A9E"),
+                        hovertemplate=f"%{{x|{date_hover}}}<br>No conversation records<extra></extra>",
+                    )
+                periods = sorted(pd.to_datetime(trend["period"].dropna().unique()))
+                if granularity == "Month":
+                    figure.update_xaxes(
+                        tickmode="array", tickvals=periods,
+                        ticktext=[pd.Timestamp(period).strftime("%b %Y") for period in periods],
+                        title="Month",
+                    )
+                elif granularity == "Week":
+                    figure.update_xaxes(
+                        tickmode="array", tickvals=periods,
+                        ticktext=[pd.Timestamp(period).strftime("%d %b") for period in periods],
+                        title="Week starting Monday",
+                    )
+                else:
+                    figure.update_xaxes(tickformat="%d %b", title="Date")
+                figure.update_yaxes(title="Questions", gridcolor="#E9EEEE", rangemode="tozero", dtick=1)
+                figure.update_layout(
+                    height=320, legend=dict(orientation="h", y=1.22), legend_title_text="",
+                    margin=dict(l=5, r=10, t=65, b=10), hovermode="x unified",
                 )
-            periods = sorted(pd.to_datetime(trend["period"].dropna().unique()))
-            if granularity == "Month":
-                figure.update_xaxes(
-                    tickmode="array", tickvals=periods,
-                    ticktext=[pd.Timestamp(period).strftime("%b %Y") for period in periods],
-                    title="Month",
-                )
-            elif granularity == "Week":
-                figure.update_xaxes(
-                    tickmode="array", tickvals=periods,
-                    ticktext=[pd.Timestamp(period).strftime("%d %b") for period in periods],
-                    title="Week starting Monday",
+                _plotly_chart(figure)
+                _chart_caption(
+                    "A zero means the category had no questions in a period covered by other conversation records. "
+                    "A gap and × marker mean the entire period has no conversation records; values are not interpolated."
                 )
             else:
-                figure.update_xaxes(tickformat="%d %b", title="Date")
-            figure.update_yaxes(title="Questions", gridcolor="#E9EEEE", rangemode="tozero", dtick=1)
-            figure.update_layout(
-                height=320, legend=dict(orientation="h", y=1.22), legend_title_text="",
-                margin=dict(l=5, r=10, t=65, b=10), hovermode="x unified",
-            )
-            _plotly_chart(figure)
-            st.caption(
-                "A zero means the category had no questions in a period covered by other conversation records. "
-                "A gap and × marker mean the entire period has no conversation records; values are not interpolated."
-            )
-        else:
-            trend = pd.DataFrame()
-            _show_missing("Question trend data could not be loaded.")
+                trend = pd.DataFrame()
+                _show_missing("Question trend data could not be loaded.")
     with notes:
-        _summary_heading("Trend summary")
-        _summary_item("Current selection", choice)
-        if not trend.empty:
-            recorded_trend = trend.loc[trend["period_status"].eq("Recorded")].copy()
-            periods = sorted(recorded_trend["period"].unique())
-            latest = recorded_trend.loc[recorded_trend["period"].eq(periods[-1])]
-            leader = latest.sort_values(["query_count","primary_topic"], ascending=[False,True]).iloc[0]
-            _summary_item("Highest recent volume", f"{leader['primary_topic']} · {int(leader['query_count'])}",
-                          note=f"Latest recorded {granularity.lower()}: {str(periods[-1])[:10]}")
-            if len(periods)>1:
-                pivot = recorded_trend.pivot(index="period", columns="primary_topic", values="query_count")
-                delta = (pivot.loc[periods[-1]] - pivot.loc[periods[-2]]).sort_values(ascending=False)
-                if delta.iloc[0]>0:
-                    _summary_item("Largest recent increase", f"{delta.index[0]} · +{int(delta.iloc[0])} questions")
-                else:
-                    _summary_item("Recent change", "No selected category increased")
-                st.caption(f"Comparison uses the last two recorded {granularity.lower()} periods; these are descriptive counts, not a significance test.")
+        with _summary_card("Trend summary", key="question_trend_summary"):
+            _summary_item("Current selection", choice)
+            if not trend.empty:
+                recorded_trend = trend.loc[trend["period_status"].eq("Recorded")].copy()
+                periods = sorted(recorded_trend["period"].unique())
+                latest = recorded_trend.loc[recorded_trend["period"].eq(periods[-1])]
+                leader = latest.sort_values(["query_count","primary_topic"], ascending=[False,True]).iloc[0]
+                _summary_item("Highest recent volume", f"{leader['primary_topic']} · {int(leader['query_count'])}",
+                              note=f"Latest recorded {granularity.lower()}: {str(periods[-1])[:10]}")
+                if len(periods)>1:
+                    pivot = recorded_trend.pivot(index="period", columns="primary_topic", values="query_count")
+                    delta = (pivot.loc[periods[-1]] - pivot.loc[periods[-2]]).sort_values(ascending=False)
+                    if delta.iloc[0]>0:
+                        _summary_item("Largest recent increase", f"{delta.index[0]} · +{int(delta.iloc[0])} questions")
+                    else:
+                        _summary_item("Recent change", "No selected category increased")
+                    _chart_caption(f"Comparison uses the last two recorded {granularity.lower()} periods; these are descriptive counts, not a significance test.")
     features = _filter(tables["feature_interest_summary"], environment=environment)
     if not features.empty and {"related_feature","query_count"}.issubset(features):
         with st.expander("Additional analysis", expanded=False):
@@ -1280,11 +1388,11 @@ def _render_feedback_reasons(exported: pd.DataFrame) -> None:
     if summary.empty:
         st.info("Detailed dissatisfaction reason data is not available in the current dataset.")
         return
-    with st.container(border=True):
-        _chart_heading(
-            "Most common reasons for negative feedback",
-            "Reasons selected by parents on negative-feedback submissions.",
-        )
+    with _chart_card(
+        "Most common reasons for negative feedback",
+        "Reasons selected by parents on negative-feedback submissions.",
+        key="feedback_reasons",
+    ):
         summary = summary.sort_values(["Count", "Reason"], ascending=[False, True])
         denominator = int(summary["negative_feedback_submissions"].iloc[0])
         summary["Count / denominator"] = summary["Count"].map(lambda n: f"{n} of {denominator} negative feedback submissions")
@@ -1308,7 +1416,7 @@ def _render_feedback_reasons(exported: pd.DataFrame) -> None:
         )
         figure.update_xaxes(rangemode="tozero", dtick=1)
         _plotly_chart(figure)
-        st.caption("Parents can select more than one reason, so percentages may not sum to 100%.")
+        _chart_caption("Parents can select more than one reason, so percentages may not sum to 100%.")
 def _render_feedback_reason_matrix(exported: pd.DataFrame) -> None:
     st.markdown("### Question Category × Feedback Reason")
     if exported.empty or not {"question_category", "feedback_reason", "case_count"}.issubset(exported):
@@ -1543,77 +1651,93 @@ def render_conversation_signals(tables: dict[str, pd.DataFrame], filters: dict[s
     _section_intro("Conversation Characteristics", "How parents submit questions and how much interaction each conversation contains.")
     input_col, intensity_col = st.container(key="conversation_characteristics").columns(2, gap="medium")
     with input_col:
-        _chart_heading("User question input types", "Quick replies and free-text messages in the selected synthetic GA events.")
-        if not input_types.empty:
-            figure = px.bar(
-                input_types, x="input_type", y="message_count", text="message_count",
-                labels={"input_type": "Input type", "message_count": "User messages"},
-                color_discrete_sequence=["#167C80"],
-            )
-            figure.update_layout(height=300, margin=dict(l=5, r=10, t=10, b=10))
-            figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
-            _plotly_chart(figure)
-            st.caption("GA-shaped message triggers distinguish quick replies from free-text input in the demo data.")
-        else:
-            _show_missing("Question input-type data could not be loaded.")
+        with _chart_card(
+            "User question input types",
+            "Quick replies and free-text messages in the selected synthetic GA events.",
+            key="question_input_types",
+        ):
+            if not input_types.empty:
+                figure = px.bar(
+                    input_types, x="input_type", y="message_count", text="message_count",
+                    labels={"input_type": "Input type", "message_count": "User messages"},
+                    color_discrete_sequence=["#167C80"],
+                )
+                figure.update_layout(height=300, margin=dict(l=5, r=10, t=10, b=10))
+                figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+                _plotly_chart(figure)
+                _chart_caption("GA-shaped message triggers distinguish quick replies from free-text input in the demo data.")
+            else:
+                _show_missing("Question input-type data could not be loaded.")
     with intensity_col:
-        _chart_heading("Conversation intensity", "Conversations grouped by their recorded number of user questions.")
-        if not intensity.empty:
-            figure = px.bar(
-                intensity, x="intensity", y="conversations", text="conversations",
-                labels={"intensity": "Questions in conversation", "conversations": "Conversations"},
-                color_discrete_sequence=["#5A9A9D"],
-            )
-            figure.update_layout(height=300, margin=dict(l=5, r=10, t=10, b=10))
-            figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
-            _plotly_chart(figure)
-            st.caption("Conversation counts remain separate from GA website sessions and message events.")
-        else:
-            _show_missing("Conversation-intensity data could not be calculated.")
+        with _chart_card(
+            "Conversation intensity",
+            "Conversations grouped by their recorded number of user questions.",
+            key="conversation_intensity",
+        ):
+            if not intensity.empty:
+                figure = px.bar(
+                    intensity, x="intensity", y="conversations", text="conversations",
+                    labels={"intensity": "Questions in conversation", "conversations": "Conversations"},
+                    color_discrete_sequence=["#5A9A9D"],
+                )
+                figure.update_layout(height=300, margin=dict(l=5, r=10, t=10, b=10))
+                figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+                _plotly_chart(figure)
+                _chart_caption("Conversation counts remain separate from GA website sessions and message events.")
+            else:
+                _show_missing("Conversation-intensity data could not be calculated.")
 
     trend = conversation_quality_trend(selected, granularity)
     _section_intro("Response Quality & Feedback", "Which recorded signals may deserve closer review and how users rated responses.")
     quality_col, feedback_col = st.container(key="conversation_quality").columns(2, gap="medium")
     with quality_col:
-        _chart_heading("Recorded evaluation flags", "Observed synthetic fallback, unresolved, and guardrail indicators.")
-        if not trend.empty:
-            figure = go.Figure()
-            for label, column, color in [
-                ("Fallback / unable to answer", "fallback_count", "#B66832"),
-                ("Potentially unresolved", "unsuccessful_count", "#8A5A44"),
-                ("Guardrail triggered", "guardrail_count", "#6653A1"),
-            ]:
-                figure.add_scatter(
-                    x=trend["period"], y=trend[column], name=label,
-                    mode="lines+markers", line=dict(width=2, color=color), marker=dict(size=5),
+        with _chart_card(
+            "Recorded evaluation flags",
+            "Observed synthetic fallback, unresolved, and guardrail indicators.",
+            key="evaluation_flags",
+        ):
+            if not trend.empty:
+                figure = go.Figure()
+                for label, column, color in [
+                    ("Fallback / unable to answer", "fallback_count", "#B66832"),
+                    ("Potentially unresolved", "unsuccessful_count", "#8A5A44"),
+                    ("Guardrail triggered", "guardrail_count", "#6653A1"),
+                ]:
+                    figure.add_scatter(
+                        x=trend["period"], y=trend[column], name=label,
+                        mode="lines+markers", line=dict(width=2, color=color), marker=dict(size=5),
+                    )
+                figure.update_layout(
+                    height=285, hovermode="x unified",
+                    xaxis_title=granularity, yaxis_title="Questions",
+                    legend=dict(orientation="h", y=1.18, x=0), margin=dict(l=5, r=10, t=55, b=5),
                 )
-            figure.update_layout(
-                height=285, hovermode="x unified",
-                xaxis_title=granularity, yaxis_title="Questions",
-                legend=dict(orientation="h", y=1.18, x=0), margin=dict(l=5, r=10, t=55, b=5),
-            )
-            figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
-            _plotly_chart(figure)
-        else:
-            _show_missing("Evaluation trends could not be calculated.")
+                figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+                _plotly_chart(figure)
+            else:
+                _show_missing("Evaluation trends could not be calculated.")
     with feedback_col:
-        _chart_heading("Submitted response ratings", "Positive and negative ratings recorded in the conversation layer.")
-        if not trend.empty:
-            figure = go.Figure()
-            for label, column, color in [
-                ("Positive", "positive_feedback", "#167C80"),
-                ("Negative", "negative_feedback", "#B66832"),
-            ]:
-                figure.add_bar(x=trend["period"], y=trend[column], name=label, marker_color=color)
-            figure.update_layout(
-                height=285, barmode="group",
-                xaxis_title=granularity, yaxis_title="Ratings",
-                legend=dict(orientation="h", y=1.14, x=0), margin=dict(l=5, r=10, t=50, b=5),
-            )
-            figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
-            _plotly_chart(figure)
-        else:
-            _show_missing("Feedback trends could not be calculated.")
+        with _chart_card(
+            "Submitted response ratings",
+            "Positive and negative ratings recorded in the conversation layer.",
+            key="response_ratings",
+        ):
+            if not trend.empty:
+                figure = go.Figure()
+                for label, column, color in [
+                    ("Positive", "positive_feedback", "#167C80"),
+                    ("Negative", "negative_feedback", "#B66832"),
+                ]:
+                    figure.add_bar(x=trend["period"], y=trend[column], name=label, marker_color=color)
+                figure.update_layout(
+                    height=285, barmode="group",
+                    xaxis_title=granularity, yaxis_title="Ratings",
+                    legend=dict(orientation="h", y=1.14, x=0), margin=dict(l=5, r=10, t=50, b=5),
+                )
+                figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+                _plotly_chart(figure)
+            else:
+                _show_missing("Feedback trends could not be calculated.")
     st.caption("Fallback, guardrail, success, and feedback flags come from the separate synthetic conversation layer—not GA4.")
 
     languages = language_distribution(selected)
@@ -1734,11 +1858,11 @@ def render_operations_page(tables: dict[str, pd.DataFrame], filters: dict[str, o
 
     latency_col, alerts_col = st.container(key="operations_reliability").columns([7, 3], gap="medium")
     with latency_col:
-        with st.container(border=True):
-            _chart_heading(
-                f"Technical response time by {granularity.lower()}",
-                "P95 is the primary slow-request indicator; P50 and average provide supporting context.",
-            )
+        with _chart_card(
+            f"Technical response time by {granularity.lower()}",
+            "P95 is the primary slow-request indicator; P50 and average provide supporting context.",
+            key="technical_response_time",
+        ):
             latency_samples["period"] = time_bucket(latency_samples["timestamp"], granularity)
             latency_trend = latency_samples.groupby("period", as_index=False).agg(
                 average_response_ms=("latency_ms", "mean"),
@@ -1761,10 +1885,12 @@ def render_operations_page(tables: dict[str, pd.DataFrame], filters: dict[str, o
             )
             figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
             _plotly_chart(figure)
-            st.caption("These synthetic technical request timings do not represent complete user-perceived AI response time.")
+            _chart_caption("These synthetic technical request timings do not represent complete user-perceived AI response time.")
     with alerts_col:
-        with st.container(border=True):
-            _chart_heading("Alert summary", "Proposed alerts by severity in the selected period.")
+        with _chart_card(
+            "Alert summary", "Proposed alerts by severity in the selected period.",
+            key="alert_summary",
+        ):
             alert_totals = pd.DataFrame({
                 "severity": ["Critical", "Warning"],
                 "alerts": [int(operations["critical_alerts"].sum()), int(operations["warning_alerts"].sum())],
@@ -1779,7 +1905,7 @@ def render_operations_page(tables: dict[str, pd.DataFrame], filters: dict[str, o
             figure.update_xaxes(range=[0, maximum_alerts * 1.25], gridcolor="#E9EEEE", dtick=max(1, maximum_alerts // 3))
             figure.update_layout(height=235, showlegend=False, margin=dict(l=5, r=35, t=20, b=5))
             _plotly_chart(figure)
-            st.caption("Illustrative counts; monitoring thresholds, severity rules, and ownership are not yet defined.")
+            _chart_caption("Illustrative counts; monitoring thresholds, severity rules, and ownership are not yet defined.")
 
     with st.expander("Supporting reliability metrics", expanded=False):
         support = st.columns(2)
@@ -1817,11 +1943,11 @@ def render_operations_page(tables: dict[str, pd.DataFrame], filters: dict[str, o
         "Human-reviewed Conversations", _format_count(float(total_reviewed)),
         help="Number of synthetic conversations marked as human reviewed. Helps show review workload. Requires a governed review log.",
     )
-    with st.container(border=True):
-        _chart_heading(
-            f"Evaluation and review activity by {granularity.lower()}",
-            "Automated flags indicate review candidates, while human-reviewed counts show illustrative review activity.",
-        )
+    with _chart_card(
+        f"Evaluation and review activity by {granularity.lower()}",
+        "Automated flags indicate review candidates, while human-reviewed counts show illustrative review activity.",
+        key="evaluation_review_activity",
+    ):
         figure = go.Figure()
         for label, column, color in [
             ("LLM Judge flagged", "llm_judge_flagged", "#7162A6"),
@@ -1834,7 +1960,7 @@ def render_operations_page(tables: dict[str, pd.DataFrame], filters: dict[str, o
         )
         figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
         _plotly_chart(figure)
-        st.caption("The dashboard does not run an evaluator; flags are synthetic review candidates, not confirmed response failures.")
+        _chart_caption("The dashboard does not run an evaluator; flags are synthetic review candidates, not confirmed response failures.")
 
     _section_intro(
         "Token Usage & Cost",
@@ -1856,10 +1982,13 @@ def render_operations_page(tables: dict[str, pd.DataFrame], filters: dict[str, o
         "Estimated Processing Cost", f"US${total_cost:.2f}",
         help="Illustrative estimated AI processing cost, not actual HPB billing expenditure. Requires validated usage records and approved billing rates.",
     )
-    token_col, cost_col = st.columns([7, 3], gap="medium")
+    token_col, cost_col = st.container(key="token_breakdown").columns([7, 3], gap="medium")
     with token_col:
-        with st.container(border=True):
-            _chart_heading(f"Token usage by {granularity.lower()}", "Input and output tokens remain visible as supporting workload detail.")
+        with _chart_card(
+            f"Token usage by {granularity.lower()}",
+            "Input and output tokens remain visible as supporting workload detail.",
+            key="token_usage",
+        ):
             figure = go.Figure()
             for label, column, color in [
                 ("Input tokens", "input_tokens", "#4F7FA3"),
@@ -1873,13 +2002,12 @@ def render_operations_page(tables: dict[str, pd.DataFrame], filters: dict[str, o
             figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
             _plotly_chart(figure)
     with cost_col:
-        with st.container(border=True):
-            _summary_heading("Processing breakdown")
+        with _summary_card("Processing breakdown", key="processing_breakdown"):
             st.caption("Supporting assumptions for the selected period.")
             _summary_item("Input tokens", f"{token_trend['input_tokens'].sum():,.0f}")
             _summary_item("Output tokens", f"{token_trend['output_tokens'].sum():,.0f}")
             _summary_item("Illustrative estimate", f"US${total_cost:.2f}")
-            st.caption("Uses fixed synthetic assumptions—not vendor pricing, validated rates, or HPB billing records.")
+            _chart_caption("Uses fixed synthetic assumptions—not vendor pricing, validated rates, or HPB billing records.")
 
     with st.expander("Metric Definitions & Data Requirements", expanded=False):
         st.dataframe(pd.DataFrame([
@@ -1952,17 +2080,59 @@ def main() -> None:
             line-height: 1.35 !important; padding: 0 !important; margin: 0 !important;
         }
         .chart-subtitle {color: #717B81; font-size: .8rem; line-height: 1.4; margin-top: .2rem; margin-bottom: .3rem;}
-        [data-testid="stCaptionContainer"] p {font-size: .78rem; line-height: 1.4; color: #717B81;}
+        [data-testid="stCaptionContainer"] p {
+            font-size: .78rem; line-height: 1.45; color: #717B81;
+            overflow-wrap: anywhere;
+        }
+        [data-testid="stCaptionContainer"] {margin-bottom: 0 !important;}
         [data-testid="stVerticalBlockBorderWrapper"] {
             border-color: #DFE7E8 !important; border-radius: 8px !important;
             background: #FFFFFF;
         }
-        [data-testid="stVerticalBlockBorderWrapper"] > div {padding: .9rem 1rem .75rem;}
-        :is(.st-key-activity_section, .st-key-entry_section, .st-key-needs_top,
+        [data-testid="stVerticalBlockBorderWrapper"] > div {padding: 1rem 1rem .95rem;}
+        [class*="st-key-chart_card_"] {
+            width: 100%; height: 100%; min-width: 0;
+            gap: var(--space-control);
+        }
+        [data-testid="stLayoutWrapper"]:has(> [class*="st-key-chart_card_"]) {
+            flex: 1 1 auto;
+        }
+        [class*="st-key-chart_card_"] [data-testid="stPlotlyChart"] {
+            min-width: 0;
+        }
+        [class*="st-key-chart_card_"] > [data-testid="stElementContainer"]:last-child
+        [data-testid="stCaptionContainer"] {
+            padding-top: var(--space-related);
+            padding-bottom: var(--space-related);
+        }
+        [class*="st-key-chart_card_"] > [data-testid="stElementContainer"]:last-child:has(
+            [data-testid="stCaptionContainer"]
+        ) {
+            margin-top: auto;
+        }
+        [class*="st-key-chart_card_"] [data-testid="stCaptionContainer"] {
+            margin-bottom: 0 !important;
+        }
+        :is(.st-key-portal_trends, .st-key-portal_patterns,
+            .st-key-activity_section, .st-key-entry_section, .st-key-needs_top,
             .st-key-needs_trend, .st-key-conversation_characteristics,
-            .st-key-conversation_quality) [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
-            background: #FFFFFF; border: 1px solid #DFE7E8; border-radius: 8px;
-            padding: .9rem 1rem .75rem;
+            .st-key-conversation_quality, .st-key-operations_reliability,
+            .st-key-token_breakdown) [data-testid="stHorizontalBlock"] {
+            align-items: stretch;
+        }
+        :is(.st-key-portal_trends, .st-key-portal_patterns,
+            .st-key-activity_section, .st-key-entry_section, .st-key-needs_top,
+            .st-key-needs_trend, .st-key-conversation_characteristics,
+            .st-key-conversation_quality, .st-key-operations_reliability,
+            .st-key-token_breakdown) [data-testid="stColumn"] {
+            display: flex; min-width: 0;
+        }
+        :is(.st-key-portal_trends, .st-key-portal_patterns,
+            .st-key-activity_section, .st-key-entry_section, .st-key-needs_top,
+            .st-key-needs_trend, .st-key-conversation_characteristics,
+            .st-key-conversation_quality, .st-key-operations_reliability,
+            .st-key-token_breakdown) [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {
+            width: 100%; height: 100%;
         }
         [role="tabpanel"] {padding-top: var(--space-heading);}
         [role="tabpanel"] > [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:first-child:has([data-testid="stCaptionContainer"]) {
@@ -2025,18 +2195,22 @@ def main() -> None:
         }
         .st-key-global_filter_toolbar {
             background: #F7F9F9; border: 1px solid #E3E9E9; border-radius: 8px;
-            padding: .45rem .65rem; margin-bottom: 0;
+            padding: .6rem .75rem; margin-bottom: var(--space-related);
         }
-        .st-key-global_filter_toolbar [data-testid="stHorizontalBlock"] {gap: .65rem;}
+        .st-key-global_filter_toolbar [data-testid="stHorizontalBlock"] {gap: .75rem; align-items: end;}
         .st-key-global_filter_toolbar [data-testid="stSelectbox"] > div > div,
-        .st-key-global_filter_toolbar [data-testid="stDateInput"] input {min-height: 2.35rem;}
+        .st-key-global_filter_toolbar [data-testid="stDateInput"] input,
+        .st-key-global_filter_toolbar [data-testid="stButton"] button {min-height: 2.4rem;}
+        .st-key-global_filter_toolbar [data-testid="stButtonGroup"] {min-height: 2.4rem;}
         .filter-label {
             color: #667176; font-size: .69rem; font-weight: 650; line-height: 1.2;
-            letter-spacing: .02em; margin: 0 0 .2rem .1rem;
+            letter-spacing: .02em; margin: 0 0 .3rem .1rem;
         }
+        .filter-label-spacer {visibility: hidden;}
         .filter-date {
-            display: flex; align-items: center; min-height: 2.35rem; padding: 0 .7rem;
-            color: #35434D; background: #EEF2F3; border-radius: 6px; font-size: .83rem;
+            display: flex; align-items: center; min-height: 2.4rem; padding: 0 .7rem;
+            color: #35434D; background: #FFFFFF; border: 1px solid #D8E1E2;
+            border-radius: 6px; font-size: .83rem; margin-bottom: 1rem;
         }
         .metric-status {
             display: inline-block; color: #5D666D; background: #F1F4F5;
@@ -2046,18 +2220,63 @@ def main() -> None:
         [data-testid="stMetric"] {
             background: #F7FAFA; border: 1px solid #DDE8E8;
             border-radius: 8px; padding: var(--space-content);
+            min-height: 6.6rem; height: 100%;
         }
         [data-testid="stMetricValue"] {font-size: 1.8rem; font-weight: 680;}
-        [data-testid="stMetricLabel"] {white-space: normal; height: auto; min-height: 2.1rem; font-size: .8rem;}
+        [data-testid="stMetricLabel"] {
+            white-space: normal; height: auto; min-height: 2.4rem;
+            font-size: .8rem; line-height: 1.35;
+        }
         [data-testid="stMetricLabel"] p {
             white-space: normal; overflow: visible; text-overflow: clip;
         }
-        .st-key-journey_metrics [data-testid="stMetric"] {height: 100%;}
-        .st-key-journey_metrics [data-testid="stColumn"]:nth-child(n+4) [data-testid="stMetric"] {background: #FCFDFD;}
-        .st-key-journey_metrics [data-testid="stColumn"]:nth-child(-n+2) {position: relative;}
-        .st-key-journey_metrics [data-testid="stColumn"]:nth-child(-n+2)::after {
-            content: '→'; position: absolute; right: -1rem; top: 45%; color: #5D7D81;
+        :is(.st-key-portal_metrics, .st-key-feedback_metrics,
+            .st-key-conversation_signal_metrics, .st-key-operations_metrics,
+            .st-key-review_metrics, .st-key-token_metrics,
+            .st-key-journey_conversion, .st-key-journey_activity)
+        [data-testid="stHorizontalBlock"] {align-items: stretch;}
+        :is(.st-key-portal_metrics, .st-key-feedback_metrics,
+            .st-key-conversation_signal_metrics, .st-key-operations_metrics,
+            .st-key-review_metrics, .st-key-token_metrics,
+            .st-key-journey_conversion, .st-key-journey_activity)
+        [data-testid="stColumn"] {display: flex; min-width: 0;}
+        :is(.st-key-portal_metrics, .st-key-feedback_metrics,
+            .st-key-conversation_signal_metrics, .st-key-operations_metrics,
+            .st-key-review_metrics, .st-key-token_metrics,
+            .st-key-journey_conversion, .st-key-journey_activity)
+        [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {width: 100%; height: 100%;}
+        .st-key-journey_metrics [data-testid="stHorizontalBlock"] {align-items: stretch;}
+        .st-key-journey_metrics > [data-testid="stVerticalBlock"] >
+        [data-testid="stElementContainer"] > [data-testid="stHorizontalBlock"] >
+        [data-testid="stColumn"] {display: flex; min-width: 0;}
+        .st-key-journey_conversion, .st-key-journey_activity {
+            width: 100%; height: 100%; padding: .65rem;
+            border: 1px solid #E3E9E9; border-radius: 8px; background: #FCFDFD;
         }
+        .metric-group-label {
+            color: #5F6B70; font-size: .72rem; line-height: 1.25;
+            font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+            margin: 0 0 var(--space-control) .1rem;
+        }
+        .st-key-journey_conversion [data-testid="stColumn"]:nth-child(-n+2) {position: relative;}
+        .st-key-journey_conversion [data-testid="stColumn"]:nth-child(-n+2)::after {
+            content: '→'; position: absolute; right: -.85rem; top: 50%; z-index: 2;
+            color: #5D7D81; transform: translateY(-50%);
+        }
+        .audience-mix {
+            display: flex; flex-direction: column; justify-content: center;
+            min-height: 13.5rem; padding: .75rem 0 .35rem;
+        }
+        .audience-row + .audience-row {margin-top: 1.1rem;}
+        .audience-row-header {
+            display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
+            gap: .55rem; align-items: baseline; margin-bottom: .4rem;
+        }
+        .audience-label {color: #33434A; font-size: .86rem; font-weight: 650;}
+        .audience-count {color: #27363D; font-size: 1rem; font-weight: 720;}
+        .audience-share {color: #69757A; font-size: .78rem; font-variant-numeric: tabular-nums;}
+        .audience-track {height: .72rem; background: #E8EEEE; border-radius: 999px; overflow: hidden;}
+        .audience-fill {display: block; height: 100%; border-radius: inherit;}
         .st-key-feedback_explorer button {min-height: 2.15rem; padding: var(--space-control) var(--space-content);}
         .st-key-feedback_explorer [data-testid="stVerticalBlock"] {gap: var(--space-control);}
         @media (min-width: 761px) and (max-width: 1100px) {
@@ -2072,30 +2291,45 @@ def main() -> None:
                 .st-key-activity_section, .st-key-entry_section,
                 .st-key-needs_top, .st-key-needs_trend,
                 .st-key-conversation_characteristics, .st-key-conversation_quality,
-                .st-key-operations_reliability) [data-testid="stHorizontalBlock"] {
+                .st-key-operations_reliability, .st-key-token_breakdown)
+                [data-testid="stHorizontalBlock"] {
                 flex-direction: column;
             }
             :is(.st-key-portal_trends, .st-key-portal_patterns,
                 .st-key-activity_section, .st-key-entry_section,
                 .st-key-needs_top, .st-key-needs_trend,
                 .st-key-conversation_characteristics, .st-key-conversation_quality,
-                .st-key-operations_reliability) [data-testid="stColumn"] {
+                .st-key-operations_reliability, .st-key-token_breakdown)
+                [data-testid="stColumn"] {
                 width: 100% !important; flex: 1 1 auto !important;
             }
-            .st-key-journey_metrics [data-testid="stHorizontalBlock"],
+            .st-key-journey_metrics [data-testid="stHorizontalBlock"]:has(.st-key-journey_conversion) {
+                flex-direction: column;
+            }
+            .st-key-journey_metrics [data-testid="stHorizontalBlock"]:has(.st-key-journey_conversion) >
+            [data-testid="stColumn"] {
+                width: 100% !important; flex: 1 1 auto !important;
+            }
             .st-key-feedback_metrics [data-testid="stHorizontalBlock"],
             .st-key-portal_metrics [data-testid="stHorizontalBlock"],
             .st-key-conversation_signal_metrics [data-testid="stHorizontalBlock"],
             .st-key-operations_metrics [data-testid="stHorizontalBlock"],
             .st-key-review_metrics [data-testid="stHorizontalBlock"],
             .st-key-token_metrics [data-testid="stHorizontalBlock"] {flex-wrap: wrap;}
-            .st-key-journey_metrics [data-testid="stColumn"],
             .st-key-feedback_metrics [data-testid="stColumn"],
             .st-key-portal_metrics [data-testid="stColumn"],
             .st-key-conversation_signal_metrics [data-testid="stColumn"],
             .st-key-operations_metrics [data-testid="stColumn"],
             .st-key-review_metrics [data-testid="stColumn"],
             .st-key-token_metrics [data-testid="stColumn"] {flex: 1 1 30% !important; width: 30% !important;}
+        }
+        @media (min-width: 761px) and (max-width: 850px) {
+            .st-key-feedback_explorer [data-testid="stHorizontalBlock"] {
+                flex-direction: column;
+            }
+            .st-key-feedback_explorer [data-testid="stColumn"] {
+                width: 100% !important; flex: 1 1 auto !important;
+            }
         }
         .reason-chip {
             display: inline-block; background: #E7F0F0; color: #214F55;
@@ -2124,11 +2358,14 @@ def main() -> None:
             .st-key-journey_metrics [data-testid="stColumn"]::after {display: none;}
             .block-container {padding-left: var(--space-heading); padding-right: var(--space-heading);}
             .st-key-global_filter_toolbar [data-testid="stHorizontalBlock"] {
-                flex-direction: row !important; flex-wrap: wrap; gap: .65rem !important;
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: .65rem !important; align-items: end;
             }
             .st-key-global_filter_toolbar [data-testid="stColumn"] {
-                width: calc(50% - .4rem) !important; flex: 1 1 45% !important;
+                width: 100% !important; min-width: 0 !important; flex: none !important;
             }
+            .st-key-global_filter_toolbar [data-testid="stButtonGroup"] {min-width: 0;}
         }
         </style>
         """,
