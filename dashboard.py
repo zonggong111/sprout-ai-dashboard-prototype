@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import hashlib
+import os
 from datetime import date
 from pathlib import Path
 
@@ -11,6 +12,24 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from src.dashboard_extensions import (
+    aggregate_engagement,
+    aggregate_portal_usage,
+    aggregate_topic_trend,
+    conversation_intensity,
+    conversation_quality_trend,
+    engagement_funnel,
+    entry_point_performance,
+    filter_rows as filter_extension_rows,
+    language_distribution,
+    operational_demo,
+    operational_latency_samples,
+    portal_activity_heatmap,
+    portal_summary,
+    portal_user_mix,
+    question_input_types,
+    time_bucket,
+)
 from src.feedback_analysis import (parse_feedback_reasons, normalise_feedback_submissions,
                                    feedback_reason_summary, feedback_reason_matrix)
 
@@ -55,6 +74,35 @@ FEATURE_INTEREST_MIN_QUERIES = 30
 FEATURE_INTEREST_MIN_ESTABLISHED_FEATURES = 3
 FEATURE_INTEREST_MIN_QUERIES_PER_FEATURE = 3
 
+PAGES = {
+    "Usage & Engagement": {
+        "icon": "◫",
+        "group": "OVERVIEW & USAGE",
+        "purpose": "Understand Parent Portal reach, access patterns, and the journey into Sprout AI.",
+    },
+    "Parent Needs": {
+        "icon": "◎",
+        "group": "OVERVIEW & USAGE",
+        "purpose": "Understand what parents are asking about and where they may need more support.",
+    },
+    "Feedback & Response Quality": {
+        "icon": "◇",
+        "group": "CONVERSATION ANALYTICS",
+        "purpose": "Review how users respond to Sprout AI and which conversation issues deserve attention.",
+    },
+    "Operations & AI Quality": {
+        "icon": "△",
+        "group": "OPERATIONS",
+        "purpose": "Explore the proposed service, review, and cost measures needed for operational oversight.",
+    },
+}
+FEEDBACK_PAGE = "Feedback & Response Quality"
+FEEDBACK_SUBPAGES = (
+    "Feedback Overview",
+    "Conversation Signals",
+    "Explore Feedback Cases",
+)
+
 OUTPUT_FILES = {
     "engagement_kpis": "engagement/engagement_kpis.csv",
     "engagement_daily": "engagement/engagement_daily.csv",
@@ -66,6 +114,7 @@ OUTPUT_FILES = {
     "repeated_question_clusters": "parent_needs/repeated_question_clusters.csv",
     "feature_interest_summary": "parent_needs/feature_interest_summary.csv",
     "priority_topics": "quality/priority_topics.csv",
+    "cleaned_ga_events": "cleaned/cleaned_ga_events.csv",
     "cleaned_conversations": "cleaned/cleaned_conversations.csv",
     **{name: f"feedback/{name}.csv" for name in [
         'feedback_overview', 'feedback_reason_summary', 'feedback_reason_by_category',
@@ -74,8 +123,9 @@ OUTPUT_FILES = {
 
 
 def dashboard_data_root() -> Path:
-    """Use only the synthetic exports bundled with this deployment."""
-    return DEFAULT_DATA_ROOT
+    """Use project-relative exports; the override supports deployment/testing."""
+    configured = os.environ.get("SPROUT_DASHBOARD_DATA_ROOT")
+    return Path(configured).expanduser() if configured else DEFAULT_DATA_ROOT
 
 
 @st.cache_data(show_spinner=False)
@@ -329,16 +379,366 @@ def _summary_heading(title: str) -> None:
     st.markdown(f'<h4 class="summary-heading">{html.escape(title)}</h4>', unsafe_allow_html=True)
 
 
-def render_engagement_page(tables: dict[str, pd.DataFrame]) -> None:
-    st.caption("Are parents using Sprout AI—and how do they enter?")
+def _metric_status(text: str = "Illustrative data · pending technical validation") -> None:
+    st.markdown(
+        f'<span class="metric-status">{html.escape(text)}</span>',
+        unsafe_allow_html=True,
+    )
+
+
+PLOTLY_CONFIG = {
+    "displaylogo": False,
+    "responsive": True,
+    "modeBarButtonsToRemove": [
+        "lasso2d", "select2d", "zoomIn2d", "zoomOut2d", "autoScale2d",
+    ],
+}
+
+
+def _plotly_chart(figure: go.Figure) -> None:
+    """Render charts with one unobtrusive, consistent interaction toolbar."""
+    st.plotly_chart(figure, width="stretch", config=PLOTLY_CONFIG)
+
+
+def _chart_heading(title: str, subtitle: str = "") -> None:
+    """Keep a chart title and its explanation visually attached."""
+    st.markdown(f'<h4 class="chart-title">{html.escape(title)}</h4>', unsafe_allow_html=True)
+    if subtitle:
+        st.markdown(f'<div class="chart-subtitle">{html.escape(subtitle)}</div>', unsafe_allow_html=True)
+
+
+def _section_intro(title: str, description: str = "") -> None:
+    st.markdown(f"### {title}")
+    if description:
+        st.markdown(f'<div class="section-description">{html.escape(description)}</div>', unsafe_allow_html=True)
+
+
+def _available_date_bounds(tables: dict[str, pd.DataFrame]) -> tuple[date, date] | None:
+    """Find the usable synthetic date range across the report's record-level tables."""
+    dates: list[pd.Series] = []
+    for name, column in [
+        ("cleaned_ga_events", "event_timestamp"),
+        ("cleaned_conversations", "timestamp"),
+        ("engagement_daily", "event_date"),
+    ]:
+        table = tables.get(name, pd.DataFrame())
+        if column in table:
+            parsed = pd.to_datetime(table[column], errors="coerce", utc=True).dropna().dt.date
+            if not parsed.empty:
+                dates.append(parsed)
+    if not dates:
+        return None
+    combined = pd.concat(dates, ignore_index=True)
+    return combined.min(), combined.max()
+
+
+def _reset_global_filters() -> None:
+    # Assign widget defaults explicitly. Removing a segmented-control key in a
+    # callback can let the browser resubmit its previous selection on the next
+    # interaction, leaving the visible control and calculated grain out of sync.
+    st.session_state["global_period"] = "Last 90 available days"
+    st.session_state["global_granularity"] = "Week"
+    for key in ["global_custom_dates", "global_environment"]:
+        st.session_state.pop(key, None)
+
+
+def render_report_header(
+    page: str, tables: dict[str, pd.DataFrame], subpage: str | None = None,
+) -> dict[str, object]:
+    """Render the shared report heading and return one consistent filter contract."""
+    st.title(subpage or page)
+    st.caption(PAGES[page]["purpose"])
+    st.markdown(
+        '<span class="demo-indicator">SYNTHETIC / PROTOTYPE DATA — DEMONSTRATION ONLY</span>',
+        unsafe_allow_html=True,
+    )
+
+    bounds = _available_date_bounds(tables)
+    environments = _values(
+        [tables.get("cleaned_ga_events", pd.DataFrame()),
+         tables.get("cleaned_conversations", pd.DataFrame())],
+        "beta_or_production",
+    )
+    if "global_period" not in st.session_state:
+        st.session_state["global_period"] = "Last 90 available days"
+    if "global_granularity" not in st.session_state:
+        st.session_state["global_granularity"] = "Week"
+    with st.container(key="global_filter_toolbar"):
+        period_col, date_col, grain_col, reset_col = st.columns(
+            [1.45, 1.45, 1.35, .55], vertical_alignment="center"
+        )
+        with period_col:
+            st.markdown('<div class="filter-label">Period</div>', unsafe_allow_html=True)
+            preset = st.selectbox(
+                "Period",
+                ["Last 7 available days", "Last 30 available days", "Last 90 available days", "Custom"],
+                key="global_period",
+                label_visibility="collapsed",
+            )
+        with grain_col:
+            st.markdown('<div class="filter-label">Time granularity</div>', unsafe_allow_html=True)
+            granularity = st.segmented_control(
+                "Time granularity", ["Day", "Week", "Month"],
+                key="global_granularity",
+                label_visibility="collapsed",
+            )
+        with reset_col:
+            st.button(
+                "Reset", key="reset_global_filters", width="stretch",
+                on_click=_reset_global_filters,
+            )
+
+        if bounds is None:
+            date_range = None
+            with date_col:
+                st.markdown('<div class="filter-label">Selected dates</div>', unsafe_allow_html=True)
+                st.markdown('<div class="filter-date">No dated records</div>', unsafe_allow_html=True)
+        elif preset == "Custom":
+            with date_col:
+                st.markdown('<div class="filter-label">Selected dates</div>', unsafe_allow_html=True)
+                selected = st.date_input(
+                    "Custom date range", value=bounds, min_value=bounds[0],
+                    max_value=bounds[1], key="global_custom_dates",
+                    label_visibility="collapsed",
+                )
+            date_range = (
+                (selected[0], selected[1])
+                if isinstance(selected, (tuple, list)) and len(selected) == 2
+                else (selected, selected) if isinstance(selected, date) else bounds
+            )
+        else:
+            days = {"Last 7 available days": 7, "Last 30 available days": 30,
+                    "Last 90 available days": 90}[preset]
+            date_range = (max(bounds[0], bounds[1] - pd.Timedelta(days=days - 1)), bounds[1])
+            with date_col:
+                st.markdown('<div class="filter-label">Selected dates</div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div class="filter-date">{date_range[0]:%d %b} – {date_range[1]:%d %b %Y}</div>',
+                    unsafe_allow_html=True,
+                )
+    if len(environments) > 1:
+        with st.expander("Advanced filters", expanded=False):
+            environment = st.selectbox(
+                "Environment", ["All", *environments], key="global_environment",
+            )
+    else:
+        environment = environments[0] if environments else "All"
+    return {
+        "date_range": date_range,
+        "granularity": granularity,
+        "environment": environment,
+    }
+
+
+def _set_active_page(page: str) -> None:
+    st.session_state["active_report_page"] = page
+
+
+def _set_feedback_subpage(subpage: str) -> None:
+    st.session_state["active_report_page"] = FEEDBACK_PAGE
+    st.session_state["active_feedback_subpage"] = subpage
+
+
+def render_sidebar_navigation() -> tuple[str, str | None]:
+    """Render compact native navigation that persists through reruns and can collapse."""
+    if st.session_state.get("active_report_page") not in PAGES:
+        st.session_state["active_report_page"] = next(iter(PAGES))
+    if st.session_state.get("active_feedback_subpage") not in FEEDBACK_SUBPAGES:
+        st.session_state["active_feedback_subpage"] = FEEDBACK_SUBPAGES[0]
+    active = st.session_state["active_report_page"]
+    active_feedback = st.session_state["active_feedback_subpage"]
+    with st.sidebar:
+        st.markdown('<div class="workspace-title">PARENT PORTAL &amp;<br>SPROUT AI</div>', unsafe_allow_html=True)
+        current_group = None
+        for page, config in PAGES.items():
+            if config["group"] != current_group:
+                current_group = config["group"]
+                st.markdown(f'<div class="nav-group">{current_group}</div>', unsafe_allow_html=True)
+            if page == FEEDBACK_PAGE:
+                with st.expander(f'{config["icon"]}  {page}', expanded=page == active):
+                    for subpage in FEEDBACK_SUBPAGES:
+                        st.button(
+                            subpage, key=f"nav_feedback_{subpage}", width="stretch",
+                            type="primary" if page == active and subpage == active_feedback else "secondary",
+                            on_click=_set_feedback_subpage, args=(subpage,),
+                        )
+            else:
+                st.button(
+                    f'{config["icon"]}  {page}', key=f"nav_{page}", width="stretch",
+                    type="primary" if page == active else "secondary",
+                    on_click=_set_active_page, args=(page,),
+                )
+        st.divider()
+        st.caption("Synthetic prototype · No production data")
+    page = st.session_state["active_report_page"]
+    return page, st.session_state["active_feedback_subpage"] if page == FEEDBACK_PAGE else None
+
+
+def render_portal_usage_section(events: pd.DataFrame, granularity: str) -> None:
+    """Render proposed Parent Portal usage views from the bundled demo GA export."""
+    _section_intro("Parent Portal Reach", "How many synthetic users reached the portal and how engagement changed over time.")
+    if events.empty:
+        _show_missing("Parent Portal event data could not be loaded.")
+        return
+
+    values = portal_summary(events)
+    cards = st.container(key="portal_metrics").columns(5)
+    items = [
+        ("Unique PP users", _format_count(values["unique_users"]), "Distinct anonymised demo users in the selected period."),
+        ("First-time users", _format_count(values["first_time_users"]), "Users with a recorded first-login flag in the selected period."),
+        ("Returning users", _format_count(values["returning_users"]), "Selected-period users without a recorded first-login flag."),
+        ("Page views", _format_count(values["page_views"]), "Tracked Parent Portal and Sprout page-view events."),
+        ("Average engagement per session", f"{values['average_engagement_seconds']:.1f}s", "Total tracked engagement seconds divided by distinct GA sessions; validate against the final GA definition."),
+    ]
+    for card, (label, value, help_text) in zip(cards, items):
+        card.metric(label, value, help=help_text)
+
+    trend = aggregate_portal_usage(events, granularity)
+    mix = portal_user_mix(events)
+    trend_col, mix_col = st.container(key="portal_trends").columns([7, 3], gap="medium")
+    with trend_col:
+        with st.container(border=True):
+            _chart_heading(f"{granularity} usage trend", "Compare reach and page-view activity over the selected period.")
+            mode = st.segmented_control(
+                "Usage measure",
+                ["Both", "Unique users", "Page views"],
+                default="Both", key="portal_usage_mode", label_visibility="collapsed",
+            )
+            if not trend.empty:
+                figure = go.Figure()
+                for label, column, color in [
+                    ("Unique users", "unique_users", "#167C80"),
+                    ("Page views", "page_views", "#4F7FA3"),
+                ]:
+                    if mode in ("Both", label):
+                        figure.add_scatter(
+                            x=trend["period"], y=trend[column], name=label,
+                            mode="lines+markers", line=dict(width=2.5, color=color), marker=dict(size=6),
+                        )
+                figure.update_layout(
+                    height=270, hovermode="x unified", xaxis_title=granularity, yaxis_title="Count",
+                    legend=dict(orientation="h", y=1.12, x=0), margin=dict(l=5, r=10, t=40, b=5),
+                )
+                figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+                _plotly_chart(figure)
+                st.caption(f"Unique users are deduplicated within each {granularity.lower()} and must not be added across periods.")
+            else:
+                _show_missing("Portal usage trend could not be calculated.")
+    with mix_col:
+        with st.container(border=True):
+            _chart_heading("New vs returning users", "Selected-period audience mix.")
+            figure = px.bar(
+                mix, x="user_count", y="user_type", orientation="h", text="user_count",
+                labels={"user_count": "Users", "user_type": ""},
+                color_discrete_sequence=["#167C80"],
+            )
+            figure.update_traces(customdata=mix["share"], hovertemplate="%{y}<br>%{x:.0f} users · %{customdata:.1%}<extra></extra>")
+            figure.update_layout(height=270, margin=dict(l=5, r=10, t=20, b=5))
+            figure.update_xaxes(gridcolor="#E9EEEE", rangemode="tozero")
+            _plotly_chart(figure)
+            st.caption("Uses the synthetic first-login flag; the production GA definition remains to be validated.")
+
+    _section_intro("Engagement & Access Patterns", "When parents use the portal and how they progress into Sprout AI.")
+    heatmap_col, funnel_col = st.container(key="portal_patterns").columns([6.5, 3.5], gap="medium")
+    with heatmap_col:
+        with st.container(border=True):
+            _chart_heading("Usage by weekday and hour", "Page views are converted from UTC to Singapore Time before grouping.")
+            activity_view = st.segmented_control(
+                "Activity view", ["Heatmap", "Hourly trend"], default="Heatmap",
+                key="portal_activity_view", label_visibility="collapsed",
+            )
+            heatmap = portal_activity_heatmap(events)
+            if activity_view == "Hourly trend":
+                hourly = heatmap.sum(axis=0, min_count=1).rename_axis("hour").reset_index(name="page_views")
+                figure = px.bar(
+                    hourly, x="hour", y="page_views", text="page_views",
+                    labels={"hour": "Hour of day (SGT)", "page_views": "Page views"},
+                    color_discrete_sequence=["#167C80"],
+                )
+                figure.update_traces(texttemplate="%{text:.0f}", textposition="outside", cliponaxis=False)
+                figure.update_xaxes(tickmode="array", tickvals=list(range(24)), ticktext=[f"{h:02d}" for h in range(24)])
+                figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+                figure.update_layout(height=300, margin=dict(l=5, r=10, t=20, b=5))
+            else:
+                recorded_values = heatmap.stack()
+                maximum = float(recorded_values.max()) if not recorded_values.empty else 0
+                figure = go.Figure(go.Heatmap(
+                    z=heatmap.values, x=list(range(24)), y=heatmap.index.tolist(),
+                    zmin=0, zmax=max(maximum, 1),
+                    colorscale=[[0, "#F1F3F4"], [.01, "#DCEDEE"], [.4, "#79AFB2"], [1, "#0D666B"]],
+                    colorbar=dict(title="Page views", thickness=12, len=.82),
+                    customdata=heatmap.values,
+                    hovertemplate="%{y}, %{x}:00 SGT<br>%{customdata:.0f} page views<extra></extra>",
+                    xgap=1, ygap=1,
+                ))
+                if heatmap.isna().any().any():
+                    missing = heatmap.isna().astype(float).where(heatmap.isna())
+                    figure.add_trace(go.Heatmap(
+                        z=missing.values, x=list(range(24)), y=heatmap.index.tolist(),
+                        zmin=0, zmax=1, colorscale=[[0, "#F1DDC7"], [1, "#F1DDC7"]],
+                        showscale=False, xgap=1, ygap=1,
+                        hovertemplate="%{y}, %{x}:00 SGT<br>Missing or unavailable data<extra></extra>",
+                    ))
+                annotations = []
+                for row_index, weekday in enumerate(heatmap.index):
+                    for hour, value in enumerate(heatmap.loc[weekday]):
+                        if pd.notna(value) and value > 0:
+                            annotations.append(dict(
+                                x=hour, y=weekday, text=f"<b>{int(value)}</b>" if value == maximum else str(int(value)),
+                                showarrow=False, font=dict(size=10, color="white" if value >= maximum * .5 else "#234247"),
+                            ))
+                figure.update_layout(
+                    height=300, annotations=annotations,
+                    xaxis=dict(title="Hour of day (SGT)", tickmode="array", tickvals=list(range(24)),
+                               ticktext=[f"{h:02d}" for h in range(24)], tickfont=dict(size=10)),
+                    yaxis=dict(title="", autorange="reversed"),
+                    margin=dict(l=5, r=10, t=20, b=5),
+                    shapes=[dict(type="line", x0=x, x1=x, y0=-.5, y1=6.5, line=dict(color="#AAB6B8", width=1.2)) for x in [5.5, 11.5, 17.5]],
+                )
+            _plotly_chart(figure)
+            invalid_timestamps = int(heatmap.attrs.get("invalid_timestamp_count", 0))
+            missing_note = (
+                "Amber cells indicate missing or unavailable data. "
+                if heatmap.isna().any().any() else
+                "No weekday-hour cells are missing in this selection. "
+            )
+            invalid_note = (
+                f"{invalid_timestamps} page-view record(s) with invalid timestamps were excluded. "
+                if invalid_timestamps else ""
+            )
+            st.caption(
+                "Neutral pale cells are recorded zero page views; they are not login counts or unique users. "
+                + missing_note + invalid_note + "Hover for exact SGT values."
+            )
+    with funnel_col:
+        with st.container(border=True):
+            _chart_heading("User engagement funnel", "How many distinct users progress from portal use to a message.")
+            funnel = engagement_funnel(events)
+            if not funnel.empty:
+                figure = go.Figure(go.Funnel(
+                    y=funnel["stage"], x=funnel["users"],
+                    textinfo="value+percent initial", marker=dict(color=["#B8D5D7", "#5F9EA2", "#167C80"]),
+                ))
+                figure.update_layout(height=300, margin=dict(l=10, r=10, t=20, b=5))
+                _plotly_chart(figure)
+                st.caption("All stages use distinct synthetic users; percentages use Parent Portal users as the denominator.")
+            else:
+                _show_missing("The proposed engagement funnel could not be calculated.")
+
+
+def render_engagement_page(tables: dict[str, pd.DataFrame], filters: dict[str, object]) -> None:
     daily = tables["engagement_daily"]
-    with st.expander("Filters", expanded=False):
-        environment = _environment_control([daily], key="engagement_environment")
-        dates = _date_control(daily, "event_date", key="engagement_dates")
-        st.caption("Dates affect the journey and activity chart. Entry-point totals cover the full exported period.")
+    ga_events = tables["cleaned_ga_events"]
+    environment = str(filters["environment"])
+    dates = filters["date_range"]
+    granularity = str(filters["granularity"])
     filtered = _filter(daily, environment=environment, date_range=dates, date_column="event_date")
+    filtered_events = filter_extension_rows(
+        ga_events, environment=environment, date_range=dates, date_column="event_timestamp",
+    )
+    render_portal_usage_section(filtered_events, granularity)
     values = _engagement_values(filtered, daily, tables["engagement_kpis"])
-    st.markdown("### Conversation journey")
+    _section_intro("Sprout Conversation Journey", "How portal sessions progress from entry to active conversation.")
     cards = st.container(key="journey_metrics").columns(5)
     for card, label, value, help_text in zip(cards, [
         "Entered Sprout AI", "Started a conversation", "Entry-to-conversation conversion",
@@ -351,22 +751,22 @@ def render_engagement_page(tables: dict[str, pd.DataFrame]) -> None:
         "Tracked user-message events.", "User messages divided by active conversation sessions.",
     ]):
         card.metric(label, value, help=help_text)
-    st.markdown("### Activity over time")
-    chart, notes = st.container(key="activity_section").columns([7, 3], gap="large")
+    _section_intro(f"Conversation Activity by {granularity}", "Compare conversation starts with user-message volume.")
+    chart, notes = st.container(key="activity_section").columns([7, 3], gap="medium")
     with chart:
+        _chart_heading("Conversation activity trend", "Toggle between both measures or focus on a single series.")
         mode = st.segmented_control("Trend measure", ["Both", "Started conversations", "User messages sent"],
                                     default="Both", key="engagement_trend_mode", label_visibility="collapsed")
         if not filtered.empty and "event_date" in filtered:
-            columns = [c for c in ["active_chat_sessions", "chat_messages_sent"] if c in filtered]
-            trend = filtered.groupby("event_date", as_index=False)[columns].sum().sort_values("event_date")
-            st.plotly_chart(engagement_trend_figure(trend, mode or "Both"), width="stretch")
+            trend = aggregate_engagement(filtered, granularity).rename(columns={"period": "event_date"})
+            _plotly_chart(engagement_trend_figure(trend, mode or "Both"))
         else:
             trend = pd.DataFrame()
             _show_missing("Activity data could not be loaded.")
     with notes:
         _summary_heading("Activity summary")
         if not trend.empty:
-            _summary_item("Recorded period", f"{len(trend)} recorded days")
+            _summary_item("Recorded period", f"{len(trend)} {granularity.lower()} periods")
             for field, label in [("active_chat_sessions", "Peak started conversations"), ("chat_messages_sent", "Peak user messages")]:
                 if field in trend:
                     _summary_item(label, _format_count(trend[field].max()))
@@ -375,10 +775,13 @@ def render_engagement_page(tables: dict[str, pd.DataFrame]) -> None:
                 _summary_item("Most active date · conversation starts", str(peak["event_date"])[:10])
             st.caption("Peaks describe recorded usage; release timing and entry routes may help explain changes.")
 
-    st.markdown("### How parents enter Sprout AI")
-    entry = tables["entry_point_effectiveness"]
-    chart, notes = st.container(key="entry_section").columns([7, 3], gap="large")
+    _section_intro("How Parents Enter Sprout AI", "Compare usage and entry-to-conversation conversion across access routes.")
+    entry = entry_point_performance(filtered_events)
+    if entry.empty:
+        entry = tables["entry_point_effectiveness"]
+    chart, notes = st.container(key="entry_section").columns([7, 3], gap="medium")
     with chart:
+        _chart_heading("Entry-point performance", "Entered sessions and started conversations by access route.")
         with st.expander("Entry-point filter", expanded=False):
             selected = st.multiselect("Entry point", _values([entry], "entry_point"), format_func=_human_label, key="engagement_entry_points")
         entry = _filter(entry, entry_points=selected)
@@ -396,7 +799,7 @@ def render_engagement_page(tables: dict[str, pd.DataFrame]) -> None:
             fig.update_layout(height=300, barmode="group", xaxis_title="Sessions",
                               legend=dict(orientation="h", y=1.15), margin=dict(l=5,r=10,t=40,b=10))
             fig.update_xaxes(gridcolor="#E9EEEE")
-            st.plotly_chart(fig, width="stretch")
+            _plotly_chart(fig)
         else:
             _show_missing("Entry-point data could not be loaded.")
     with notes:
@@ -416,17 +819,29 @@ def render_engagement_page(tables: dict[str, pd.DataFrame]) -> None:
             st.caption("Different routes can reflect different visitor intentions. Ties use alphabetical order.")
 
 
-def render_parent_needs_page(tables: dict[str, pd.DataFrame]) -> None:
-    st.caption("What are parents asking about—and which needs repeat?")
-    environment = _environment_control([tables["topic_summary"]], key="needs_environment")
-    summary = _filter(tables["topic_summary"], environment=environment)
+def render_parent_needs_page(tables: dict[str, pd.DataFrame], filters: dict[str, object]) -> None:
+    environment = str(filters["environment"])
+    dates = filters["date_range"]
+    granularity = str(filters["granularity"])
+    conversations = filter_extension_rows(
+        tables["cleaned_conversations"], environment=environment,
+        date_range=dates, date_column="timestamp",
+    )
+    if not conversations.empty and "primary_topic" in conversations:
+        summary = (
+            conversations["primary_topic"].fillna("Unclassified").value_counts()
+            .rename_axis("primary_topic").reset_index(name="query_count")
+        )
+    else:
+        summary = _filter(tables["topic_summary"], environment=environment)
     repeated = _filter(tables["repeated_question_clusters"], environment=environment)
     valid_repeated = not repeated.empty and {"representative_question","number_of_similar_questions"}.issubset(repeated)
     if valid_repeated:
         repeated = repeated.sort_values("number_of_similar_questions", ascending=False)
-    chart, preview = st.container(key="needs_top").columns([6.5, 3.5], gap="large")
+    _section_intro("Main Topics & Parent Needs", "What parents ask about most and which needs recur in similar forms.")
+    chart, preview = st.container(key="needs_top").columns([6.5, 3.5], gap="medium")
     with chart:
-        st.markdown("### Top Question Categories")
+        _chart_heading("Topic distribution", "Questions ranked by volume in the current filter selection.")
         if not summary.empty and {"primary_topic","query_count"}.issubset(summary):
             # Aggregate environments before ranking the complete current selection.
             summary = summary.groupby("primary_topic", as_index=False)["query_count"].sum()
@@ -438,12 +853,12 @@ def render_parent_needs_page(tables: dict[str, pd.DataFrame]) -> None:
             figure.update_traces(textposition="outside", cliponaxis=False)
             figure.update_xaxes(range=[0, top["query_count"].max()*1.28], gridcolor="#E9EEEE")
             figure.update_layout(height=max(260, min(360, 28*len(top)+60)), margin=dict(l=5,r=35,t=10,b=10))
-            st.plotly_chart(figure, width="stretch")
-            st.caption("Counts and shares use all questions in the current dataset.")
+            _plotly_chart(figure)
+            st.caption("Counts and shares use questions in the current global filter selection.")
         else:
             _show_missing("Question Category data could not be loaded.")
     with preview:
-        st.markdown("### Frequently repeated needs")
+        _chart_heading("Questions requiring attention", "Frequently repeated needs that may warrant clearer support.")
         if valid_repeated:
             for _, row in repeated.head(3).iterrows():
                 _grouped_item(
@@ -463,47 +878,84 @@ def render_parent_needs_page(tables: dict[str, pd.DataFrame]) -> None:
         else:
             _show_missing("Repeated-question data could not be loaded.")
 
-    st.markdown("### Question trends over time")
-    chart, notes = st.container(key="needs_trend").columns([7, 3], gap="large")
+    _section_intro(f"Parent Needs Trend by {granularity}", "How selected question categories change over time.")
+    chart, notes = st.container(key="needs_trend").columns([7, 3], gap="medium")
     with chart:
-        controls = st.columns([1.4, 1])
-        with controls[0]:
-            choice = st.selectbox("Topic trend", ["Top 3 topics", *_values([summary], "primary_topic")], key="needs_trend_topic", label_visibility="collapsed")
-        with controls[1]:
-            with st.expander("Trend dates", expanded=False):
-                dates = _date_control(tables["topic_weekly_trend"], "week_start", key="needs_dates")
-        weekly = _filter(tables["topic_weekly_trend"], environment=environment, date_range=dates, date_column="week_start")
+        _chart_heading("Question volume trend", "Choose the leading topics or one category for a focused view.")
+        choice = st.selectbox("Topic trend", ["Top 3 topics", *_values([summary], "primary_topic")], key="needs_trend_topic", label_visibility="collapsed")
         selected = summary.nlargest(3, "query_count")["primary_topic"].tolist() if choice == "Top 3 topics" and "query_count" in summary else [choice]
-        if not weekly.empty and {"week_start","primary_topic","query_count"}.issubset(weekly):
-            weekly = weekly.loc[weekly["primary_topic"].isin(selected)].groupby(["week_start","primary_topic"], as_index=False)["query_count"].sum().sort_values("week_start")
-            figure = px.line(weekly, x="week_start", y="query_count", color="primary_topic", markers=True,
-                labels={"week_start":"Week starting", "query_count":"Questions", "primary_topic":"Question Category"},
-                color_discrete_sequence=["#167C80","#B66832","#6653A1"])
-            figure.update_traces(line_width=2, marker_size=5)
-            figure.update_yaxes(gridcolor="#E9EEEE")
-            figure.update_layout(height=320, legend=dict(orientation="h",y=1.22), legend_title_text="",
-                                 margin=dict(l=5,r=10,t=65,b=10))
-            st.plotly_chart(figure, width="stretch")
+        if not conversations.empty and {"timestamp", "primary_topic"}.issubset(conversations):
+            trend = aggregate_topic_trend(conversations, selected, granularity)
+            figure = go.Figure()
+            colors = ["#167C80", "#B66832", "#6653A1"]
+            date_hover = "%b %Y" if granularity == "Month" else "%d %b %Y"
+            for topic, color in zip(selected, colors):
+                topic_trend = trend.loc[trend["primary_topic"].eq(topic)]
+                figure.add_scatter(
+                    x=topic_trend["period"], y=topic_trend["query_count"],
+                    name=topic, mode="lines+markers", connectgaps=False,
+                    line=dict(width=2.3, color=color), marker=dict(size=6),
+                    hovertemplate=(
+                        f"{html.escape(topic)}<br>%{{x|{date_hover}}}<br>"
+                        "%{y:.0f} questions<extra></extra>"
+                    ),
+                )
+            missing_periods = (
+                trend.loc[trend["period_status"].eq("No records"), "period"]
+                .drop_duplicates().sort_values()
+            )
+            if not missing_periods.empty:
+                figure.add_scatter(
+                    x=missing_periods, y=[0] * len(missing_periods), name="No records",
+                    mode="markers", marker=dict(symbol="x", size=8, color="#929A9E"),
+                    hovertemplate=f"%{{x|{date_hover}}}<br>No conversation records<extra></extra>",
+                )
+            periods = sorted(pd.to_datetime(trend["period"].dropna().unique()))
+            if granularity == "Month":
+                figure.update_xaxes(
+                    tickmode="array", tickvals=periods,
+                    ticktext=[pd.Timestamp(period).strftime("%b %Y") for period in periods],
+                    title="Month",
+                )
+            elif granularity == "Week":
+                figure.update_xaxes(
+                    tickmode="array", tickvals=periods,
+                    ticktext=[pd.Timestamp(period).strftime("%d %b") for period in periods],
+                    title="Week starting Monday",
+                )
+            else:
+                figure.update_xaxes(tickformat="%d %b", title="Date")
+            figure.update_yaxes(title="Questions", gridcolor="#E9EEEE", rangemode="tozero", dtick=1)
+            figure.update_layout(
+                height=320, legend=dict(orientation="h", y=1.22), legend_title_text="",
+                margin=dict(l=5, r=10, t=65, b=10), hovermode="x unified",
+            )
+            _plotly_chart(figure)
+            st.caption(
+                "A zero means the category had no questions in a period covered by other conversation records. "
+                "A gap and × marker mean the entire period has no conversation records; values are not interpolated."
+            )
         else:
-            weekly = pd.DataFrame()
-            _show_missing("Weekly question data could not be loaded.")
+            trend = pd.DataFrame()
+            _show_missing("Question trend data could not be loaded.")
     with notes:
         _summary_heading("Trend summary")
         _summary_item("Current selection", choice)
-        if not weekly.empty:
-            periods = sorted(weekly["week_start"].unique())
-            latest = weekly.loc[weekly["week_start"].eq(periods[-1])]
+        if not trend.empty:
+            recorded_trend = trend.loc[trend["period_status"].eq("Recorded")].copy()
+            periods = sorted(recorded_trend["period"].unique())
+            latest = recorded_trend.loc[recorded_trend["period"].eq(periods[-1])]
             leader = latest.sort_values(["query_count","primary_topic"], ascending=[False,True]).iloc[0]
             _summary_item("Highest recent volume", f"{leader['primary_topic']} · {int(leader['query_count'])}",
-                          note=f"Latest recorded week: {str(periods[-1])[:10]}")
+                          note=f"Latest recorded {granularity.lower()}: {str(periods[-1])[:10]}")
             if len(periods)>1:
-                pivot = weekly.pivot(index="week_start", columns="primary_topic", values="query_count").fillna(0)
+                pivot = recorded_trend.pivot(index="period", columns="primary_topic", values="query_count")
                 delta = (pivot.loc[periods[-1]] - pivot.loc[periods[-2]]).sort_values(ascending=False)
                 if delta.iloc[0]>0:
                     _summary_item("Largest recent increase", f"{delta.index[0]} · +{int(delta.iloc[0])} questions")
                 else:
                     _summary_item("Recent change", "No selected category increased")
-                st.caption("Comparison uses the last two recorded weeks; these are descriptive counts, not a significance test.")
+                st.caption(f"Comparison uses the last two recorded {granularity.lower()} periods; these are descriptive counts, not a significance test.")
     features = _filter(tables["feature_interest_summary"], environment=environment)
     if not features.empty and {"related_feature","query_count"}.issubset(features):
         with st.expander("Additional analysis", expanded=False):
@@ -823,46 +1275,40 @@ def _render_feedback_overview(feedback: pd.DataFrame) -> None:
 
 
 def _render_feedback_reasons(exported: pd.DataFrame) -> None:
-    st.markdown("### Most common reasons for negative feedback")
     summary = exported.rename(columns={"feedback_reason": "Reason", "negative_case_count": "Count",
                                         "percentage_of_negative_cases": "Percentage of negative feedback"}).copy()
     if summary.empty:
         st.info("Detailed dissatisfaction reason data is not available in the current dataset.")
         return
-    summary = summary.sort_values(["Count", "Reason"], ascending=[False, True])
-    denominator = int(summary["negative_feedback_submissions"].iloc[0])
-    summary["Count / denominator"] = summary["Count"].map(lambda n: f"{n} of {denominator} negative feedback submissions")
-    summary["Display label"] = summary.apply(
-        lambda row: (
-            f"{int(row['Count'])} cases · "
-            f"{float(row['Percentage of negative feedback']):.1%}"
-        ),
-        axis=1,
-    )
-    figure = px.bar(
-        summary.sort_values("Count"), x="Count", y="Reason", orientation="h",
-        text="Display label",
-        custom_data=["Percentage of negative feedback", "Count / denominator"],
-        labels={"Count": "Negative feedback submissions", "Reason": "Feedback reason"},
-        color_discrete_sequence=["#2F6B73"],
-    )
-    figure.update_traces(
-        textposition="outside",
-        hovertemplate=(
-            "%{y}<br>%{customdata[1]}<br>Share of negative submissions: "
-            "%{customdata[0]:.1%}<extra></extra>"
-        ),
-        cliponaxis=False,
-    )
-    figure.update_layout(
-        height=max(260, min(340, 36 * len(summary) + 90)), showlegend=False,
-        margin=dict(l=10, r=100, t=10, b=10),
-    )
-    figure.update_xaxes(rangemode="tozero", dtick=1)
-    st.plotly_chart(figure, width="stretch")
-    st.caption(
-        "Parents can select more than one reason, so percentages may not sum to 100%."
-    )
+    with st.container(border=True):
+        _chart_heading(
+            "Most common reasons for negative feedback",
+            "Reasons selected by parents on negative-feedback submissions.",
+        )
+        summary = summary.sort_values(["Count", "Reason"], ascending=[False, True])
+        denominator = int(summary["negative_feedback_submissions"].iloc[0])
+        summary["Count / denominator"] = summary["Count"].map(lambda n: f"{n} of {denominator} negative feedback submissions")
+        summary["Display label"] = summary.apply(
+            lambda row: f"{int(row['Count'])} cases · {float(row['Percentage of negative feedback']):.1%}",
+            axis=1,
+        )
+        figure = px.bar(
+            summary.sort_values("Count"), x="Count", y="Reason", orientation="h",
+            text="Display label", custom_data=["Percentage of negative feedback", "Count / denominator"],
+            labels={"Count": "Negative feedback submissions", "Reason": "Feedback reason"},
+            color_discrete_sequence=["#356F76"],
+        )
+        figure.update_traces(
+            textposition="outside", cliponaxis=False,
+            hovertemplate="%{y}<br>%{customdata[1]}<br>Share of negative submissions: %{customdata[0]:.1%}<extra></extra>",
+        )
+        figure.update_layout(
+            height=max(250, min(320, 34 * len(summary) + 80)), showlegend=False,
+            margin=dict(l=10, r=100, t=10, b=5),
+        )
+        figure.update_xaxes(rangemode="tozero", dtick=1)
+        _plotly_chart(figure)
+        st.caption("Parents can select more than one reason, so percentages may not sum to 100%.")
 def _render_feedback_reason_matrix(exported: pd.DataFrame) -> None:
     st.markdown("### Question Category × Feedback Reason")
     if exported.empty or not {"question_category", "feedback_reason", "case_count"}.issubset(exported):
@@ -898,7 +1344,7 @@ def _render_feedback_reason_matrix(exported: pd.DataFrame) -> None:
         xaxis_title="Feedback Reason", yaxis_title="Question Category",
         margin=dict(l=10, r=20, t=20, b=10),
     )
-    st.plotly_chart(figure, width="stretch")
+    _plotly_chart(figure)
     st.caption(
         "Each cell counts negative feedback submissions that selected that reason. "
         "A submission can contribute to more than one reason column."
@@ -1060,37 +1506,398 @@ def _render_feedback_explorer(tables: dict[str, pd.DataFrame], cases: pd.DataFra
             _render_feedback_reason_matrix(tables["feedback_reason_matrix"])
 
 
-def render_quality_page(tables: dict[str, pd.DataFrame]) -> None:
+def render_conversation_signals(tables: dict[str, pd.DataFrame], filters: dict[str, object]) -> None:
+    """Extend conversation monitoring without changing the case-review workflow."""
+    conversations = tables["cleaned_conversations"]
+    ga_events = tables["cleaned_ga_events"]
+    environment = str(filters["environment"])
+    dates = filters["date_range"]
+    granularity = str(filters["granularity"])
+    selected = filter_extension_rows(
+        conversations, environment=environment, date_range=dates, date_column="timestamp",
+    )
+    selected_events = filter_extension_rows(
+        ga_events, environment=environment, date_range=dates, date_column="event_timestamp",
+    )
+    if selected.empty:
+        _show_missing("Conversation signal data could not be loaded.")
+        return
+
+    session_key = "conversation_id" if "conversation_id" in selected else "session_id"
+    sessions = selected[session_key].dropna().nunique() if session_key in selected else 0
+    questions = len(selected)
+    avg_questions = questions / sessions if sessions else None
+    grouped = selected.dropna(subset=[session_key]).groupby(session_key).size() if session_key in selected else pd.Series(dtype=int)
+    follow_up_sessions = int(grouped.gt(1).sum())
+    cards = st.container(key="conversation_signal_metrics").columns(4)
+    for card, label, value, help_text in [
+        (cards[0], "Conversation sessions", _format_count(float(sessions)), "Distinct synthetic conversation identifiers."),
+        (cards[1], "User questions", _format_count(float(questions)), "Rows in the synthetic conversation log; not GA message events."),
+        (cards[2], "Average questions per session", _format_number(avg_questions), "User questions divided by identified conversation sessions."),
+        (cards[3], "Sessions with follow-up questions", _format_count(float(follow_up_sessions)), "Sessions containing more than one recorded user question; semantic follow-up detection is not yet validated."),
+    ]:
+        card.metric(label, value, help=help_text)
+
+    input_types = question_input_types(selected_events)
+    intensity = conversation_intensity(selected)
+    _section_intro("Conversation Characteristics", "How parents submit questions and how much interaction each conversation contains.")
+    input_col, intensity_col = st.container(key="conversation_characteristics").columns(2, gap="medium")
+    with input_col:
+        _chart_heading("User question input types", "Quick replies and free-text messages in the selected synthetic GA events.")
+        if not input_types.empty:
+            figure = px.bar(
+                input_types, x="input_type", y="message_count", text="message_count",
+                labels={"input_type": "Input type", "message_count": "User messages"},
+                color_discrete_sequence=["#167C80"],
+            )
+            figure.update_layout(height=300, margin=dict(l=5, r=10, t=10, b=10))
+            figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+            _plotly_chart(figure)
+            st.caption("GA-shaped message triggers distinguish quick replies from free-text input in the demo data.")
+        else:
+            _show_missing("Question input-type data could not be loaded.")
+    with intensity_col:
+        _chart_heading("Conversation intensity", "Conversations grouped by their recorded number of user questions.")
+        if not intensity.empty:
+            figure = px.bar(
+                intensity, x="intensity", y="conversations", text="conversations",
+                labels={"intensity": "Questions in conversation", "conversations": "Conversations"},
+                color_discrete_sequence=["#5A9A9D"],
+            )
+            figure.update_layout(height=300, margin=dict(l=5, r=10, t=10, b=10))
+            figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+            _plotly_chart(figure)
+            st.caption("Conversation counts remain separate from GA website sessions and message events.")
+        else:
+            _show_missing("Conversation-intensity data could not be calculated.")
+
+    trend = conversation_quality_trend(selected, granularity)
+    _section_intro("Response Quality & Feedback", "Which recorded signals may deserve closer review and how users rated responses.")
+    quality_col, feedback_col = st.container(key="conversation_quality").columns(2, gap="medium")
+    with quality_col:
+        _chart_heading("Recorded evaluation flags", "Observed synthetic fallback, unresolved, and guardrail indicators.")
+        if not trend.empty:
+            figure = go.Figure()
+            for label, column, color in [
+                ("Fallback / unable to answer", "fallback_count", "#B66832"),
+                ("Potentially unresolved", "unsuccessful_count", "#8A5A44"),
+                ("Guardrail triggered", "guardrail_count", "#6653A1"),
+            ]:
+                figure.add_scatter(
+                    x=trend["period"], y=trend[column], name=label,
+                    mode="lines+markers", line=dict(width=2, color=color), marker=dict(size=5),
+                )
+            figure.update_layout(
+                height=285, hovermode="x unified",
+                xaxis_title=granularity, yaxis_title="Questions",
+                legend=dict(orientation="h", y=1.18, x=0), margin=dict(l=5, r=10, t=55, b=5),
+            )
+            figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+            _plotly_chart(figure)
+        else:
+            _show_missing("Evaluation trends could not be calculated.")
+    with feedback_col:
+        _chart_heading("Submitted response ratings", "Positive and negative ratings recorded in the conversation layer.")
+        if not trend.empty:
+            figure = go.Figure()
+            for label, column, color in [
+                ("Positive", "positive_feedback", "#167C80"),
+                ("Negative", "negative_feedback", "#B66832"),
+            ]:
+                figure.add_bar(x=trend["period"], y=trend[column], name=label, marker_color=color)
+            figure.update_layout(
+                height=285, barmode="group",
+                xaxis_title=granularity, yaxis_title="Ratings",
+                legend=dict(orientation="h", y=1.14, x=0), margin=dict(l=5, r=10, t=50, b=5),
+            )
+            figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+            _plotly_chart(figure)
+        else:
+            _show_missing("Feedback trends could not be calculated.")
+    st.caption("Fallback, guardrail, success, and feedback flags come from the separate synthetic conversation layer—not GA4.")
+
+    languages = language_distribution(selected)
+    if not languages.empty:
+        st.markdown("#### Language distribution")
+        figure = px.bar(
+            languages, x="question_count", y="language", orientation="h", text="question_count",
+            labels={"question_count": "Questions", "language": "Language"},
+            color_discrete_sequence=["#167C80"],
+        )
+        _plotly_chart(figure)
+    with st.expander("Metrics awaiting source validation", expanded=False):
+        st.dataframe(pd.DataFrame([
+            {"Metric": "Language distribution", "Required source": "Validated language field or approved classifier output", "Status": "Pending data validation"},
+            {"Metric": "PII detection categories", "Required source": "Aggregated safety or DLP events; no sensitive text", "Status": "Pending data validation"},
+            {"Metric": "LLM-as-a-Judge outcomes", "Required source": "Separate evaluation pipeline and calibration results", "Status": "Pending technical validation"},
+            {"Metric": "PP application feedback", "Required source": "PP application-feedback service", "Status": "Source not currently ingested"},
+        ]), hide_index=True, width="stretch")
+
+
+def render_quality_page(
+    tables: dict[str, pd.DataFrame], filters: dict[str, object],
+    subpage: str = "Feedback Overview",
+) -> None:
     cases = tables["feedback_cases"].rename(columns={
         "question_category": "primary_topic", "journey_stage": "user_type",
         "anonymised_session_id": "session_id"}).copy()
+    cases = filter_extension_rows(
+        cases, environment=str(filters["environment"]),
+        date_range=filters["date_range"], date_column="timestamp",
+    )
     links = tables["feedback_case_reasons"]
     if not cases.empty and "feedback_id" in cases:
         reason_map = links.drop_duplicates(["feedback_id", "feedback_reason"]).groupby("feedback_id")["feedback_reason"].agg(list).to_dict() if {"feedback_id", "feedback_reason"}.issubset(links) else {}
         cases["_feedback_reasons"] = cases["feedback_id"].map(lambda value: reason_map.get(value, []))
+        cases["_submission_key"] = cases["feedback_id"].astype(str)
         if "primary_topic" not in cases:
             cases["primary_topic"] = "Unclassified"
         cases["primary_topic"] = cases["primary_topic"].fillna("Unclassified")
         cases["_has_written_feedback"] = cases.get("feedback_comment", pd.Series("", index=cases.index)).fillna("").astype(str).str.strip().ne("")
     submissions = cases
 
-    reasons_tab, explorer_tab = st.tabs(["Feedback Overview", "Explore Feedback Cases"])
-    with reasons_tab:
-        _render_feedback_overview(tables["feedback_overview"])
+    if subpage == "Feedback Overview":
+        events = filter_extension_rows(
+            tables["cleaned_ga_events"], environment=str(filters["environment"]),
+            date_range=filters["date_range"], date_column="event_timestamp",
+        )
+        labels = events.get("feedback_type", pd.Series(dtype="string")).fillna("unknown").astype(str).str.lower()
+        counts = labels[labels.isin(["positive", "negative", "general"])].value_counts()
+        feedback_overview = pd.DataFrame([{
+            "total_feedback_submissions": int(counts.sum()),
+            "positive_count": int(counts.get("positive", 0)),
+            "negative_count": int(counts.get("negative", 0)),
+            "general_count": int(counts.get("general", 0)),
+            "negative_feedback_share": float(counts.get("negative", 0) / counts.sum()) if counts.sum() else 0,
+        }]) if counts.sum() else tables["feedback_overview"]
+        _render_feedback_overview(feedback_overview)
         if not submissions.empty:
             st.caption(
                 f"Detailed reasons below use {len(submissions):,} negative feedback submissions "
                 "from the separate conversation/backend layer."
             )
-        _render_feedback_reasons(tables["feedback_reason_summary"])
-    with explorer_tab:
+        filtered_reason_summary = feedback_reason_summary(submissions)
+        if not filtered_reason_summary.empty:
+            filtered_reason_summary = filtered_reason_summary.rename(columns={
+                "Reason": "feedback_reason",
+                "Count": "negative_case_count",
+                "Percentage of negative feedback": "percentage_of_negative_cases",
+            })
+            filtered_reason_summary["negative_feedback_submissions"] = len(submissions)
+        _render_feedback_reasons(
+            filtered_reason_summary if not filtered_reason_summary.empty
+            else tables["feedback_reason_summary"]
+        )
+    elif subpage == "Conversation Signals":
+        render_conversation_signals(tables, filters)
+    elif subpage == "Explore Feedback Cases":
         _render_feedback_explorer(tables, submissions)
+
+
+def render_operations_page(tables: dict[str, pd.DataFrame], filters: dict[str, object]) -> None:
+    """Render decision-useful proposed operations metrics for business stakeholders."""
+    conversations = tables["cleaned_conversations"]
+    environment = str(filters["environment"])
+    dates = filters["date_range"]
+    granularity = str(filters["granularity"])
+    selected = filter_extension_rows(
+        conversations, environment=environment, date_range=dates, date_column="timestamp",
+    )
+    operations = operational_demo(selected)
+    _metric_status("Proposed Operational Metrics")
+    st.caption("Illustrative data. Actual monitoring sources are pending validation.")
+    if operations.empty:
+        _show_missing("Illustrative operations data could not be generated from the selected demo period.")
+        return
+
+    _section_intro(
+        "Service Reliability",
+        "Are the proposed service indicators stable enough to support a dependable experience?",
+    )
+    availability = float(pd.to_numeric(operations["availability"], errors="coerce").mean())
+    error_rate = float(pd.to_numeric(operations["api_error_rate"], errors="coerce").mean())
+    latency_samples = operational_latency_samples(selected)
+    latency_values = pd.to_numeric(latency_samples["latency_ms"], errors="coerce").dropna()
+    average_ms = float(latency_values.mean()) if not latency_values.empty else 0
+    p50_ms = float(latency_values.quantile(.50)) if not latency_values.empty else 0
+    p95_ms = float(latency_values.quantile(.95)) if not latency_values.empty else 0
+    cards = st.container(key="operations_metrics").columns(3)
+    for card, label, value, help_text in [
+        (cards[0], "System Availability", _format_rate(availability),
+         "Share of monitored time the service was available. Helps indicate continuity. Requires uptime or synthetic-monitoring records."),
+        (cards[1], "API Error Rate", _format_rate(error_rate),
+         "Share of monitored API requests returning an error. Helps identify technical instability. Requires API gateway or application logs."),
+        (cards[2], "P95 Response Time", f"{p95_ms / 1000:.2f}s",
+         "95% of measured technical requests completed within this time. Helps identify slower requests. Requires application performance traces."),
+    ]:
+        card.metric(label, value, help=help_text)
+
+    latency_col, alerts_col = st.container(key="operations_reliability").columns([7, 3], gap="medium")
+    with latency_col:
+        with st.container(border=True):
+            _chart_heading(
+                f"Technical response time by {granularity.lower()}",
+                "P95 is the primary slow-request indicator; P50 and average provide supporting context.",
+            )
+            latency_samples["period"] = time_bucket(latency_samples["timestamp"], granularity)
+            latency_trend = latency_samples.groupby("period", as_index=False).agg(
+                average_response_ms=("latency_ms", "mean"),
+                p50_response_ms=("latency_ms", "median"),
+                p95_response_ms=("latency_ms", lambda values: values.quantile(.95)),
+            )
+            figure = go.Figure()
+            for label, column, color, width in [
+                ("P95", "p95_response_ms", "#B66832", 3),
+                ("Average", "average_response_ms", "#4F7FA3", 1.8),
+                ("P50", "p50_response_ms", "#167C80", 1.8),
+            ]:
+                figure.add_scatter(
+                    x=latency_trend["period"], y=latency_trend[column] / 1000, name=label,
+                    mode="lines+markers", line=dict(width=width, color=color), marker=dict(size=4),
+                )
+            figure.update_layout(
+                height=270, hovermode="x unified", xaxis_title=granularity, yaxis_title="Seconds",
+                legend=dict(orientation="h", y=1.12, x=0), margin=dict(l=5, r=10, t=40, b=5),
+            )
+            figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+            _plotly_chart(figure)
+            st.caption("These synthetic technical request timings do not represent complete user-perceived AI response time.")
+    with alerts_col:
+        with st.container(border=True):
+            _chart_heading("Alert summary", "Proposed alerts by severity in the selected period.")
+            alert_totals = pd.DataFrame({
+                "severity": ["Critical", "Warning"],
+                "alerts": [int(operations["critical_alerts"].sum()), int(operations["warning_alerts"].sum())],
+            })
+            figure = px.bar(
+                alert_totals, x="alerts", y="severity", orientation="h", text="alerts",
+                labels={"severity": "", "alerts": "Alerts"}, color="severity",
+                color_discrete_map={"Critical": "#984B4B", "Warning": "#B97835"},
+            )
+            maximum_alerts = max(int(alert_totals["alerts"].max()), 1)
+            figure.update_traces(textposition="outside", cliponaxis=False)
+            figure.update_xaxes(range=[0, maximum_alerts * 1.25], gridcolor="#E9EEEE", dtick=max(1, maximum_alerts // 3))
+            figure.update_layout(height=235, showlegend=False, margin=dict(l=5, r=35, t=20, b=5))
+            _plotly_chart(figure)
+            st.caption("Illustrative counts; monitoring thresholds, severity rules, and ownership are not yet defined.")
+
+    with st.expander("Supporting reliability metrics", expanded=False):
+        support = st.columns(2)
+        support[0].metric(
+            "Average Technical Response Time", f"{average_ms / 1000:.2f}s",
+            help="Average measured technical request duration. Useful for overall monitoring, but it can hide slower requests. Requires application performance traces.",
+        )
+        support[1].metric(
+            "P50 Response Time", f"{p50_ms / 1000:.2f}s",
+            help="50% of measured technical requests completed within this time. Shows typical technical performance. Requires application performance traces.",
+        )
+
+    _section_intro(
+        "AI Evaluation & Human Review",
+        "How much proposed automated screening and human review activity would require oversight?",
+    )
+    review = operations.copy()
+    review["period"] = time_bucket(review["date"], granularity)
+    review = review.groupby("period", as_index=False)[
+        ["question_count", "llm_judge_flagged", "human_reviewed"]
+    ].sum()
+    total_questions = int(review["question_count"].sum())
+    total_reviewed = int(review["human_reviewed"].sum())
+    total_flagged = int(review["llm_judge_flagged"].sum())
+    review_cards = st.container(key="review_metrics").columns(3)
+    review_cards[0].metric(
+        "LLM Judge Flagged Conversations", _format_count(float(total_flagged)),
+        help="Conversations identified by an automated evaluator for possible further review. A flag is not a confirmed failure. Requires a calibrated evaluation pipeline.",
+    )
+    review_cards[1].metric(
+        "Human Review Coverage", _format_rate(_safe_rate(total_reviewed, total_questions)),
+        help="Percentage of the provisional demo population reviewed by a human. The eligible denominator must be defined before production use. Requires a review log and sampling policy.",
+    )
+    review_cards[2].metric(
+        "Human-reviewed Conversations", _format_count(float(total_reviewed)),
+        help="Number of synthetic conversations marked as human reviewed. Helps show review workload. Requires a governed review log.",
+    )
+    with st.container(border=True):
+        _chart_heading(
+            f"Evaluation and review activity by {granularity.lower()}",
+            "Automated flags indicate review candidates, while human-reviewed counts show illustrative review activity.",
+        )
+        figure = go.Figure()
+        for label, column, color in [
+            ("LLM Judge flagged", "llm_judge_flagged", "#7162A6"),
+            ("Human reviewed", "human_reviewed", "#167C80"),
+        ]:
+            figure.add_bar(x=review["period"], y=review[column], name=label, marker_color=color)
+        figure.update_layout(
+            height=265, barmode="group", xaxis_title=granularity, yaxis_title="Conversations",
+            legend=dict(orientation="h", y=1.12, x=0), margin=dict(l=5, r=10, t=40, b=5),
+        )
+        figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+        _plotly_chart(figure)
+        st.caption("The dashboard does not run an evaluator; flags are synthetic review candidates, not confirmed response failures.")
+
+    _section_intro(
+        "Token Usage & Cost",
+        "What level of illustrative AI processing activity and estimated cost would need monitoring?",
+    )
+    token_trend = operations.copy()
+    token_trend["period"] = time_bucket(token_trend["date"], granularity)
+    token_trend = token_trend.groupby("period", as_index=False)[
+        ["input_tokens", "output_tokens", "estimated_cost_usd"]
+    ].sum()
+    total_tokens = float(token_trend["input_tokens"].sum() + token_trend["output_tokens"].sum())
+    total_cost = float(token_trend["estimated_cost_usd"].sum())
+    token_cards = st.container(key="token_metrics").columns(2)
+    token_cards[0].metric(
+        "Total Token Usage", f"{total_tokens:,.0f}",
+        help="Combined illustrative input and output tokens processed. Helps estimate model workload. Requires model usage records.",
+    )
+    token_cards[1].metric(
+        "Estimated Processing Cost", f"US${total_cost:.2f}",
+        help="Illustrative estimated AI processing cost, not actual HPB billing expenditure. Requires validated usage records and approved billing rates.",
+    )
+    token_col, cost_col = st.columns([7, 3], gap="medium")
+    with token_col:
+        with st.container(border=True):
+            _chart_heading(f"Token usage by {granularity.lower()}", "Input and output tokens remain visible as supporting workload detail.")
+            figure = go.Figure()
+            for label, column, color in [
+                ("Input tokens", "input_tokens", "#4F7FA3"),
+                ("Output tokens", "output_tokens", "#167C80"),
+            ]:
+                figure.add_bar(x=token_trend["period"], y=token_trend[column], name=label, marker_color=color)
+            figure.update_layout(
+                height=255, barmode="group", xaxis_title=granularity, yaxis_title="Tokens",
+                legend=dict(orientation="h", y=1.12, x=0), margin=dict(l=5, r=10, t=40, b=5),
+            )
+            figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero")
+            _plotly_chart(figure)
+    with cost_col:
+        with st.container(border=True):
+            _summary_heading("Processing breakdown")
+            st.caption("Supporting assumptions for the selected period.")
+            _summary_item("Input tokens", f"{token_trend['input_tokens'].sum():,.0f}")
+            _summary_item("Output tokens", f"{token_trend['output_tokens'].sum():,.0f}")
+            _summary_item("Illustrative estimate", f"US${total_cost:.2f}")
+            st.caption("Uses fixed synthetic assumptions—not vendor pricing, validated rates, or HPB billing records.")
+
+    with st.expander("Metric Definitions & Data Requirements", expanded=False):
+        st.dataframe(pd.DataFrame([
+            {"Metric": "System Availability", "Definition": "Share of monitored time the service is available", "Why it matters": "Signals continuity", "Unit": "%", "Required source": "Uptime or synthetic-monitoring records", "Status": "Pending validation"},
+            {"Metric": "API Error Rate", "Definition": "Share of monitored API requests returning an error", "Why it matters": "Signals technical instability", "Unit": "%", "Required source": "API gateway or application logs", "Status": "Pending validation"},
+            {"Metric": "Average / P50 / P95 Response Time", "Definition": "Technical request-duration summaries", "Why it matters": "Shows typical and slower requests", "Unit": "seconds", "Required source": "Application performance traces", "Status": "Not end-to-end user response time"},
+            {"Metric": "Critical / Warning Alerts", "Definition": "Alerts grouped by agreed severity", "Why it matters": "Supports incident prioritisation", "Unit": "alerts", "Required source": "Monitoring and incident platform", "Status": "Pending rules and ownership"},
+            {"Metric": "LLM Judge Flagged Conversations", "Definition": "Automated-evaluator review candidates", "Why it matters": "Focuses further review", "Unit": "conversations", "Required source": "Calibrated evaluation pipeline", "Status": "Not confirmed failures"},
+            {"Metric": "Human Review Coverage", "Definition": "Reviewed conversations divided by an eligible population", "Why it matters": "Shows review reach", "Unit": "%", "Required source": "Sampling policy and review log", "Status": "Denominator not validated"},
+            {"Metric": "Total Token Usage", "Definition": "Combined input and output tokens", "Why it matters": "Indicates model workload", "Unit": "tokens", "Required source": "Model usage records", "Status": "Proposed metric"},
+            {"Metric": "Estimated Processing Cost", "Definition": "Usage multiplied by transparent assumed rates", "Why it matters": "Supports planning", "Unit": "USD", "Required source": "Validated usage and approved rates", "Status": "Not actual expenditure"},
+        ]), hide_index=True, width="stretch")
 
 
 def main() -> None:
     st.set_page_config(
         page_title="Sprout AI Analytics Prototype", page_icon="🌱",
-        layout="wide", initial_sidebar_state="collapsed",
+        layout="wide", initial_sidebar_state="expanded",
     )
     st.markdown(
         """
@@ -1102,25 +1909,60 @@ def main() -> None:
             --space-heading: 1rem;
             --space-section: 1.5rem;
             --space-page: 2rem;
+            --color-teal: #167C80;
+            --color-blue: #4F7FA3;
+            --color-violet: #7162A6;
+            --color-amber: #B97835;
+            --color-critical: #984B4B;
         }
-        .block-container {padding-top: 2.6rem; padding-bottom: var(--space-page); max-width: 1600px;}
+        .block-container {padding-top: 3rem; padding-bottom: var(--space-page); max-width: 1600px;}
+        section[data-testid="stSidebar"] {min-width: 232px; max-width: 240px;}
+        section[data-testid="stSidebar"] > div {width: 232px;}
+        section[data-testid="stSidebar"] [data-testid="stButton"] button {
+            justify-content: flex-start; min-height: 2.35rem; border-radius: 6px;
+        }
+        .workspace-title {font-size: .92rem; font-weight: 750; letter-spacing: .04em; line-height: 1.45; color: #183E42; margin: .35rem 0 1.25rem;}
+        .nav-group {font-size: .68rem; font-weight: 750; letter-spacing: .08em; color: #707A80; margin: 1rem 0 .35rem;}
         [data-testid="stVerticalBlock"] {gap: var(--space-content);}
         [data-testid="stHorizontalBlock"] {gap: var(--space-heading);}
         :is(.st-key-activity_section, .st-key-entry_section, .st-key-needs_top,
-            .st-key-needs_trend, .st-key-feedback_explorer) [data-testid="stHorizontalBlock"] {
-            gap: var(--space-page);
+            .st-key-needs_trend, .st-key-portal_trends,
+            .st-key-portal_patterns, .st-key-operations_reliability) [data-testid="stHorizontalBlock"] {
+            gap: var(--space-heading);
         }
+        .st-key-feedback_explorer [data-testid="stHorizontalBlock"] {gap: var(--space-page);}
         .st-key-needs_trend [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"] {
             gap: var(--space-heading);
         }
-        h1 {font-size: 1.9rem !important; padding: 0 0 var(--space-content) !important; margin: 0;}
+        h1 {font-size: 1.85rem !important; line-height: 1.2 !important; font-weight: 720 !important; padding: 0 0 .35rem !important; margin: 0;}
         h3 {
-            font-size: 1.2rem !important;
-            padding: var(--space-heading) 0 var(--space-content) !important; margin: 0;
+            font-size: 1.25rem !important; line-height: 1.3 !important; font-weight: 650 !important;
+            padding: var(--space-content) 0 .45rem !important; margin: 0;
         }
         h4 {
-            font-size: 1.05rem !important;
+            font-size: 1rem !important; line-height: 1.35 !important; font-weight: 650 !important;
             padding: var(--space-control) 0 var(--space-control) !important; margin: 0;
+        }
+        .section-description {
+            color: #69747A; font-size: .84rem; line-height: 1.45;
+            margin: -.15rem 0 var(--space-content);
+        }
+        h4.chart-title {
+            color: #29343D; font-size: 1rem !important; font-weight: 650;
+            line-height: 1.35 !important; padding: 0 !important; margin: 0 !important;
+        }
+        .chart-subtitle {color: #717B81; font-size: .8rem; line-height: 1.4; margin-top: .2rem; margin-bottom: .3rem;}
+        [data-testid="stCaptionContainer"] p {font-size: .78rem; line-height: 1.4; color: #717B81;}
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            border-color: #DFE7E8 !important; border-radius: 8px !important;
+            background: #FFFFFF;
+        }
+        [data-testid="stVerticalBlockBorderWrapper"] > div {padding: .9rem 1rem .75rem;}
+        :is(.st-key-activity_section, .st-key-entry_section, .st-key-needs_top,
+            .st-key-needs_trend, .st-key-conversation_characteristics,
+            .st-key-conversation_quality) [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+            background: #FFFFFF; border: 1px solid #DFE7E8; border-radius: 8px;
+            padding: .9rem 1rem .75rem;
         }
         [role="tabpanel"] {padding-top: var(--space-heading);}
         [role="tabpanel"] > [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:first-child:has([data-testid="stCaptionContainer"]) {
@@ -1128,6 +1970,18 @@ def main() -> None:
         }
         [data-testid="stExpander"] summary {padding: var(--space-control) var(--space-content);}
         [data-testid="stExpanderDetails"] {padding: var(--space-heading);}
+        section[data-testid="stSidebar"] [data-testid="stExpander"] {
+            border: 0; background: transparent;
+        }
+        section[data-testid="stSidebar"] [data-testid="stExpander"] summary {
+            min-height: 2.35rem; padding: .35rem .15rem;
+        }
+        section[data-testid="stSidebar"] [data-testid="stExpanderDetails"] {
+            padding: .15rem 0 .1rem .7rem;
+        }
+        section[data-testid="stSidebar"] [data-testid="stExpanderDetails"] button {
+            min-height: 2.05rem; font-size: .84rem;
+        }
         [data-testid="stCaptionContainer"] p {margin-bottom: 0;}
         .grouped-item {
             padding: var(--space-related) 0 var(--space-content); margin-bottom: var(--space-related);
@@ -1163,17 +2017,38 @@ def main() -> None:
         .st-key-repeated_details [data-testid="stExpander"] summary p {font-size: .85rem;}
         [data-testid="stTabs"] [role="tablist"] {gap: var(--space-section);}
         [data-testid="stTabs"] [role="tab"] {height: 2.5rem;}
-        .synthetic-banner {
-            background: #FFF3CD; color: #664D03; border: 1px solid #FFECB5;
-            border-radius: 8px; padding: var(--space-control) var(--space-content); font-weight: 700;
-            letter-spacing: 0.01em; margin: 0;
+        .demo-indicator {
+            display: inline-block; color: #4C5C61; background: #EEF3F3;
+            border: 1px solid #D8E2E2; border-radius: 999px;
+            padding: .18rem .58rem; margin: 0 0 var(--space-heading);
+            font-size: .78rem; font-weight: 650;
+        }
+        .st-key-global_filter_toolbar {
+            background: #F7F9F9; border: 1px solid #E3E9E9; border-radius: 8px;
+            padding: .45rem .65rem; margin-bottom: 0;
+        }
+        .st-key-global_filter_toolbar [data-testid="stHorizontalBlock"] {gap: .65rem;}
+        .st-key-global_filter_toolbar [data-testid="stSelectbox"] > div > div,
+        .st-key-global_filter_toolbar [data-testid="stDateInput"] input {min-height: 2.35rem;}
+        .filter-label {
+            color: #667176; font-size: .69rem; font-weight: 650; line-height: 1.2;
+            letter-spacing: .02em; margin: 0 0 .2rem .1rem;
+        }
+        .filter-date {
+            display: flex; align-items: center; min-height: 2.35rem; padding: 0 .7rem;
+            color: #35434D; background: #EEF2F3; border-radius: 6px; font-size: .83rem;
+        }
+        .metric-status {
+            display: inline-block; color: #5D666D; background: #F1F4F5;
+            border-radius: 999px; padding: .2rem .6rem; margin-bottom: var(--space-content);
+            font-size: .82rem; font-weight: 600;
         }
         [data-testid="stMetric"] {
             background: #F7FAFA; border: 1px solid #DDE8E8;
             border-radius: 8px; padding: var(--space-content);
         }
-        [data-testid="stMetricValue"] {font-size: 2rem;}
-        [data-testid="stMetricLabel"] {white-space: normal; height: auto; min-height: 2.5rem;}
+        [data-testid="stMetricValue"] {font-size: 1.8rem; font-weight: 680;}
+        [data-testid="stMetricLabel"] {white-space: normal; height: auto; min-height: 2.1rem; font-size: .8rem;}
         [data-testid="stMetricLabel"] p {
             white-space: normal; overflow: visible; text-overflow: clip;
         }
@@ -1186,10 +2061,41 @@ def main() -> None:
         .st-key-feedback_explorer button {min-height: 2.15rem; padding: var(--space-control) var(--space-content);}
         .st-key-feedback_explorer [data-testid="stVerticalBlock"] {gap: var(--space-control);}
         @media (min-width: 761px) and (max-width: 1100px) {
+            .st-key-global_filter_toolbar [data-testid="stHorizontalBlock"] {
+                display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: .65rem !important; align-items: end;
+            }
+            .st-key-global_filter_toolbar [data-testid="stColumn"] {
+                width: 100% !important; min-width: 0 !important; flex: none !important;
+            }
+            :is(.st-key-portal_trends, .st-key-portal_patterns,
+                .st-key-activity_section, .st-key-entry_section,
+                .st-key-needs_top, .st-key-needs_trend,
+                .st-key-conversation_characteristics, .st-key-conversation_quality,
+                .st-key-operations_reliability) [data-testid="stHorizontalBlock"] {
+                flex-direction: column;
+            }
+            :is(.st-key-portal_trends, .st-key-portal_patterns,
+                .st-key-activity_section, .st-key-entry_section,
+                .st-key-needs_top, .st-key-needs_trend,
+                .st-key-conversation_characteristics, .st-key-conversation_quality,
+                .st-key-operations_reliability) [data-testid="stColumn"] {
+                width: 100% !important; flex: 1 1 auto !important;
+            }
             .st-key-journey_metrics [data-testid="stHorizontalBlock"],
-            .st-key-feedback_metrics [data-testid="stHorizontalBlock"] {flex-wrap: wrap;}
+            .st-key-feedback_metrics [data-testid="stHorizontalBlock"],
+            .st-key-portal_metrics [data-testid="stHorizontalBlock"],
+            .st-key-conversation_signal_metrics [data-testid="stHorizontalBlock"],
+            .st-key-operations_metrics [data-testid="stHorizontalBlock"],
+            .st-key-review_metrics [data-testid="stHorizontalBlock"],
+            .st-key-token_metrics [data-testid="stHorizontalBlock"] {flex-wrap: wrap;}
             .st-key-journey_metrics [data-testid="stColumn"],
-            .st-key-feedback_metrics [data-testid="stColumn"] {flex: 1 1 30% !important; width: 30% !important;}
+            .st-key-feedback_metrics [data-testid="stColumn"],
+            .st-key-portal_metrics [data-testid="stColumn"],
+            .st-key-conversation_signal_metrics [data-testid="stColumn"],
+            .st-key-operations_metrics [data-testid="stColumn"],
+            .st-key-review_metrics [data-testid="stColumn"],
+            .st-key-token_metrics [data-testid="stColumn"] {flex: 1 1 30% !important; width: 30% !important;}
         }
         .reason-chip {
             display: inline-block; background: #E7F0F0; color: #214F55;
@@ -1210,32 +2116,35 @@ def main() -> None:
             [data-testid="stColumn"] {
                 width: 100% !important; flex: 1 1 auto !important;
             }
-            :is(.st-key-journey_metrics, .st-key-feedback_metrics) [data-testid="stHorizontalBlock"] {
+            :is(.st-key-journey_metrics, .st-key-feedback_metrics, .st-key-portal_metrics,
+                .st-key-conversation_signal_metrics, .st-key-operations_metrics,
+                .st-key-review_metrics, .st-key-token_metrics) [data-testid="stHorizontalBlock"] {
                 gap: var(--space-content) !important;
             }
             .st-key-journey_metrics [data-testid="stColumn"]::after {display: none;}
             .block-container {padding-left: var(--space-heading); padding-right: var(--space-heading);}
+            .st-key-global_filter_toolbar [data-testid="stHorizontalBlock"] {
+                flex-direction: row !important; flex-wrap: wrap; gap: .65rem !important;
+            }
+            .st-key-global_filter_toolbar [data-testid="stColumn"] {
+                width: calc(50% - .4rem) !important; flex: 1 1 45% !important;
+            }
         }
         </style>
         """,
         unsafe_allow_html=True,
     )
-    st.title("Sprout AI Usage & Parent Needs Analytics")
-    st.markdown(
-        '<div class="synthetic-banner">SYNTHETIC / PROTOTYPE DATA — DEMONSTRATION ONLY</div>',
-        unsafe_allow_html=True,
-    )
     tables = load_dashboard_tables(dashboard_data_root())
-
-    engagement_tab, needs_tab, quality_tab = st.tabs([
-        "1 · Usage & Entry", "2 · Parent Needs", "3 · Feedback & Response Quality",
-    ])
-    with engagement_tab:
-        render_engagement_page(tables)
-    with needs_tab:
-        render_parent_needs_page(tables)
-    with quality_tab:
-        render_quality_page(tables)
+    page, feedback_subpage = render_sidebar_navigation()
+    filters = render_report_header(page, tables, feedback_subpage)
+    if page == "Usage & Engagement":
+        render_engagement_page(tables, filters)
+    elif page == "Parent Needs":
+        render_parent_needs_page(tables, filters)
+    elif page == "Feedback & Response Quality":
+        render_quality_page(tables, filters, feedback_subpage or FEEDBACK_SUBPAGES[0])
+    else:
+        render_operations_page(tables, filters)
 
 
 if __name__ == "__main__":
