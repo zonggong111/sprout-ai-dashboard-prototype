@@ -33,6 +33,7 @@ from src.dashboard_extensions import (
 )
 from src.feedback_analysis import (parse_feedback_reasons, normalise_feedback_submissions,
                                    feedback_reason_summary, feedback_reason_matrix)
+from src.metric_traceability import metric_traceability
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -76,20 +77,40 @@ FEATURE_INTEREST_MIN_ESTABLISHED_FEATURES = 3
 FEATURE_INTEREST_MIN_QUERIES_PER_FEATURE = 3
 
 PAGES = {
-    "Usage & Engagement": {
+    "Parent Portal Reach": {
         "icon": "◫",
         "group": "OVERVIEW & USAGE",
-        "purpose": "Understand Parent Portal reach, access patterns, and the journey into Sprout AI.",
+        "purpose": "Understand synthetic Parent Portal reach, activity patterns, and tracked portal interactions.",
     },
-    "Parent Needs": {
-        "icon": "◎",
+    "Sprout Usage": {
+        "icon": "◉",
         "group": "OVERVIEW & USAGE",
-        "purpose": "Understand what parents are asking about and where they may need more support.",
+        "purpose": "Understand how the synthetic prototype is used, including input method and conversation depth.",
     },
-    "Feedback & Response Quality": {
+    "Entry & Journey": {
+        "icon": "↳",
+        "group": "OVERVIEW & USAGE",
+        "purpose": "Follow the synthetic journey from Parent Portal entry to an active Sprout conversation.",
+    },
+    "Topics & Trends": {
+        "icon": "◎",
+        "group": "PARENT NEEDS",
+        "purpose": "Understand which parent needs appear most often and how question volume changes over time.",
+    },
+    "Repeated Questions": {
+        "icon": "≋",
+        "group": "PARENT NEEDS",
+        "purpose": "Review recurring or rephrased questions that may warrant clearer content or support.",
+    },
+    "Feedback Overview": {
         "icon": "◇",
-        "group": "CONVERSATION ANALYTICS",
-        "purpose": "Review how users respond to Sprout AI and which conversation issues deserve attention.",
+        "group": "FEEDBACK & QUALITY",
+        "purpose": "Compare positive and negative Sprout feedback, then inspect the reasons behind negative ratings.",
+    },
+    "Explore Feedback Cases": {
+        "icon": "⌕",
+        "group": "FEEDBACK & QUALITY",
+        "purpose": "Inspect complete synthetic feedback cases while preserving the current filtering workflow.",
     },
     "Operations & AI Quality": {
         "icon": "△",
@@ -97,12 +118,6 @@ PAGES = {
         "purpose": "Explore the proposed service, review, and cost measures needed for operational oversight.",
     },
 }
-FEEDBACK_PAGE = "Feedback & Response Quality"
-FEEDBACK_SUBPAGES = (
-    "Feedback Overview",
-    "Conversation Signals",
-    "Explore Feedback Cases",
-)
 
 OUTPUT_FILES = {
     "engagement_kpis": "engagement/engagement_kpis.csv",
@@ -478,6 +493,19 @@ def _section_intro(title: str, description: str = "") -> None:
         st.markdown(f'<div class="section-description">{html.escape(description)}</div>', unsafe_allow_html=True)
 
 
+def render_metric_traceability(page: str) -> None:
+    """Expose a compact audit trail from business metric to dashboard visual."""
+    mapping = metric_traceability(page)
+    if mapping.empty:
+        return
+    with st.expander("Metric traceability", expanded=False):
+        st.caption(
+            "Stable prototype mapping aligned to the available reviewed metrics crosswalk. "
+            "Shown and Partial use bundled synthetic data; Proposed and Requires Validation are not production claims."
+        )
+        st.dataframe(mapping, hide_index=True, width="stretch")
+
+
 def _available_date_bounds(tables: dict[str, pd.DataFrame]) -> tuple[date, date] | None:
     """Find the usable synthetic date range across the report's record-level tables."""
     dates: list[pd.Series] = []
@@ -511,7 +539,7 @@ def render_report_header(
     page: str, tables: dict[str, pd.DataFrame], subpage: str | None = None,
 ) -> dict[str, object]:
     """Render the shared report heading and return one consistent filter contract."""
-    st.title(subpage or page)
+    st.title(page)
     st.caption(PAGES[page]["purpose"])
     st.markdown(
         '<span class="demo-indicator">SYNTHETIC / PROTOTYPE DATA — DEMONSTRATION ONLY</span>',
@@ -603,19 +631,11 @@ def _set_active_page(page: str) -> None:
     st.session_state["active_report_page"] = page
 
 
-def _set_feedback_subpage(subpage: str) -> None:
-    st.session_state["active_report_page"] = FEEDBACK_PAGE
-    st.session_state["active_feedback_subpage"] = subpage
-
-
 def render_sidebar_navigation() -> tuple[str, str | None]:
-    """Render compact native navigation that persists through reruns and can collapse."""
+    """Render one compact primary navigation that persists through reruns."""
     if st.session_state.get("active_report_page") not in PAGES:
         st.session_state["active_report_page"] = next(iter(PAGES))
-    if st.session_state.get("active_feedback_subpage") not in FEEDBACK_SUBPAGES:
-        st.session_state["active_feedback_subpage"] = FEEDBACK_SUBPAGES[0]
     active = st.session_state["active_report_page"]
-    active_feedback = st.session_state["active_feedback_subpage"]
     with st.sidebar:
         st.markdown('<div class="workspace-title">PARENT PORTAL &amp;<br>SPROUT AI</div>', unsafe_allow_html=True)
         current_group = None
@@ -623,29 +643,22 @@ def render_sidebar_navigation() -> tuple[str, str | None]:
             if config["group"] != current_group:
                 current_group = config["group"]
                 st.markdown(f'<div class="nav-group">{current_group}</div>', unsafe_allow_html=True)
-            if page == FEEDBACK_PAGE:
-                with st.expander(f'{config["icon"]}  {page}', expanded=page == active):
-                    for subpage in FEEDBACK_SUBPAGES:
-                        st.button(
-                            subpage, key=f"nav_feedback_{subpage}", width="stretch",
-                            type="primary" if page == active and subpage == active_feedback else "secondary",
-                            on_click=_set_feedback_subpage, args=(subpage,),
-                        )
-            else:
-                st.button(
-                    f'{config["icon"]}  {page}', key=f"nav_{page}", width="stretch",
-                    type="primary" if page == active else "secondary",
-                    on_click=_set_active_page, args=(page,),
-                )
+            st.button(
+                f'{config["icon"]}  {page}', key=f"nav_{page}", width="stretch",
+                type="primary" if page == active else "secondary",
+                on_click=_set_active_page, args=(page,),
+            )
         st.divider()
         st.caption("Synthetic prototype · No production data")
     page = st.session_state["active_report_page"]
-    return page, st.session_state["active_feedback_subpage"] if page == FEEDBACK_PAGE else None
+    return page, None
 
 
-def render_portal_usage_section(events: pd.DataFrame, granularity: str) -> None:
+def render_portal_usage_section(
+    events: pd.DataFrame, granularity: str, *, show_funnel: bool = False,
+) -> None:
     """Render proposed Parent Portal usage views from the bundled demo GA export."""
-    _section_intro("Parent Portal Reach", "How many synthetic users reached the portal and how engagement changed over time.")
+    _section_intro("Reach Summary", "How many synthetic users reached the portal and how engagement changed over time.")
     if events.empty:
         _show_missing("Parent Portal event data could not be loaded.")
         return
@@ -705,11 +718,15 @@ def render_portal_usage_section(events: pd.DataFrame, granularity: str) -> None:
             _chart_caption("Uses the synthetic first-login flag; the production GA definition remains to be validated.")
 
     _section_intro("Engagement & Access Patterns", "When parents use the portal and how they progress into Sprout AI.")
-    heatmap_col, funnel_col = st.container(key="portal_patterns").columns([6.5, 3.5], gap="medium")
+    pattern_container = st.container(key="portal_patterns")
+    if show_funnel:
+        heatmap_col, funnel_col = pattern_container.columns([6.5, 3.5], gap="medium")
+    else:
+        heatmap_col, funnel_col = pattern_container, None
     with heatmap_col:
         with _chart_card(
-            "Usage by weekday and hour",
-            "Page views are converted from UTC to Singapore Time before grouping.",
+            "Parent Portal page views by weekday and hour",
+            "Recorded page-view events are converted from UTC to Singapore Time before grouping.",
             key="portal_activity_pattern",
         ):
             activity_view = st.segmented_control(
@@ -779,7 +796,8 @@ def render_portal_usage_section(events: pd.DataFrame, granularity: str) -> None:
                 "Neutral pale cells are recorded zero page views; they are not login counts or unique users. "
                 + missing_note + invalid_note + "Hover for exact SGT values."
             )
-    with funnel_col:
+    if funnel_col is not None:
+      with funnel_col:
         with _chart_card(
             "User engagement funnel",
             "How many distinct users progress from portal use to a message.",
@@ -797,8 +815,75 @@ def render_portal_usage_section(events: pd.DataFrame, granularity: str) -> None:
             else:
                 _show_missing("The proposed engagement funnel could not be calculated.")
 
+    _section_intro(
+        "Tracked Portal Interactions",
+        "Which synthetic Parent Portal actions were recorded in the bundled event export.",
+    )
+    action_col, pillar_col = st.container(key="portal_actions").columns([6, 4], gap="medium")
+    with action_col:
+        with _chart_card(
+            "CTA and journey actions", "Tracked action events in the current selection.",
+            key="portal_actions",
+        ):
+            action_labels = {
+                "child_card_select": "Select child profile",
+                "view_health_plan": "View Health Plan",
+                "view_personalised_recommendations": "View recommendations",
+                "complete_lq": "Complete lifestyle questionnaire",
+                "resource_card_click": "Open resource card",
+            }
+            actions = (
+                events.loc[events.get("event_name", pd.Series(index=events.index)).isin(action_labels)]
+                .groupby("event_name").size().rename("clicks").reset_index()
+            )
+            if not actions.empty:
+                actions["action"] = actions["event_name"].map(action_labels)
+                actions = actions.sort_values("clicks")
+                figure = px.bar(
+                    actions, x="clicks", y="action", orientation="h", text="clicks",
+                    labels={"clicks": "Tracked actions", "action": ""},
+                    color_discrete_sequence=["#167C80"],
+                )
+                figure.update_traces(textposition="outside", cliponaxis=False)
+                figure.update_xaxes(range=[0, max(actions["clicks"].max() * 1.2, 1)], gridcolor="#E9EEEE")
+                figure.update_layout(height=275, margin=dict(l=5, r=35, t=10, b=5))
+                _plotly_chart(figure)
+                _chart_caption("Actions use explicit synthetic event names; they are not inferred from page views.")
+            else:
+                _show_missing("Tracked portal actions could not be calculated.")
+    with pillar_col:
+        with _chart_card(
+            "Resource-card clicks by pillar", "Recorded resource clicks grouped by synthetic content pillar.",
+            key="portal_resource_pillars",
+        ):
+            resource_mask = events.get("event_name", pd.Series(index=events.index)).eq("resource_card_click")
+            resource = events.loc[resource_mask].copy()
+            if not resource.empty and "content_pillar" in resource:
+                pillars = (
+                    resource["content_pillar"].fillna("Unclassified").value_counts()
+                    .rename_axis("pillar").reset_index(name="clicks").sort_values("clicks")
+                )
+                figure = px.bar(
+                    pillars, x="clicks", y="pillar", orientation="h", text="clicks",
+                    labels={"clicks": "Clicks", "pillar": ""}, color_discrete_sequence=["#4F7FA3"],
+                )
+                figure.update_traces(textposition="outside", cliponaxis=False)
+                figure.update_layout(height=275, margin=dict(l=5, r=35, t=10, b=5))
+                figure.update_xaxes(gridcolor="#E9EEEE", rangemode="tozero")
+                _plotly_chart(figure)
+            else:
+                _show_missing("Resource-pillar data could not be loaded.")
 
-def render_engagement_page(tables: dict[str, pd.DataFrame], filters: dict[str, object]) -> None:
+    with st.expander("Metrics awaiting source validation", expanded=False):
+        st.dataframe(pd.DataFrame([
+            {"Metric": "Usage by access channel", "Status": "Requires Validation", "Reason": "No verified access-channel field is present; device category is not used as a substitute."},
+            {"Metric": "Scroll depth", "Status": "Requires Validation", "Reason": "No eligible scroll event or threshold is present in the bundled synthetic export."},
+        ]), hide_index=True, width="stretch")
+
+
+def render_engagement_page(
+    tables: dict[str, pd.DataFrame], filters: dict[str, object], *, view: str = "journey",
+) -> None:
     daily = tables["engagement_daily"]
     ga_events = tables["cleaned_ga_events"]
     environment = str(filters["environment"])
@@ -808,7 +893,22 @@ def render_engagement_page(tables: dict[str, pd.DataFrame], filters: dict[str, o
     filtered_events = filter_extension_rows(
         ga_events, environment=environment, date_range=dates, date_column="event_timestamp",
     )
-    render_portal_usage_section(filtered_events, granularity)
+    if view == "portal":
+        render_portal_usage_section(filtered_events, granularity)
+        return
+    _section_intro("Parent Portal to Sprout Funnel", "How distinct synthetic users progress from portal use to a user message.")
+    funnel = engagement_funnel(filtered_events)
+    with _chart_card("User engagement funnel", "All stages use distinct synthetic users.", key="journey_funnel"):
+        if not funnel.empty:
+            figure = go.Figure(go.Funnel(
+                y=funnel["stage"], x=funnel["users"], textinfo="value+percent initial",
+                marker=dict(color=["#B8D5D7", "#5F9EA2", "#167C80"]),
+            ))
+            figure.update_layout(height=255, margin=dict(l=10, r=10, t=15, b=5))
+            _plotly_chart(figure)
+            _chart_caption("Percentages use synthetic Parent Portal users as the denominator; identity linkage requires production validation.")
+        else:
+            _show_missing("The proposed engagement funnel could not be calculated.")
     values = _engagement_values(filtered, daily, tables["engagement_kpis"])
     _section_intro("Sprout Conversation Journey", "How portal sessions progress from entry to active conversation.")
     journey = st.container(key="journey_metrics")
@@ -934,8 +1034,8 @@ def render_parent_needs_page(tables: dict[str, pd.DataFrame], filters: dict[str,
     valid_repeated = not repeated.empty and {"representative_question","number_of_similar_questions"}.issubset(repeated)
     if valid_repeated:
         repeated = repeated.sort_values("number_of_similar_questions", ascending=False)
-    _section_intro("Main Topics & Parent Needs", "What parents ask about most and which needs recur in similar forms.")
-    chart, preview = st.container(key="needs_top").columns([6.5, 3.5], gap="medium")
+    _section_intro("Main Topics & Parent Needs", "What parents ask about most in the current synthetic selection.")
+    chart = st.container(key="needs_top")
     with chart:
         with _chart_card(
             "Topic distribution",
@@ -957,31 +1057,6 @@ def render_parent_needs_page(tables: dict[str, pd.DataFrame], filters: dict[str,
                 _chart_caption("Counts and shares use questions in the current global filter selection.")
             else:
                 _show_missing("Question Category data could not be loaded.")
-    with preview:
-        with _chart_card(
-            "Questions requiring attention",
-            "Frequently repeated needs that may warrant clearer support.",
-            key="questions_attention",
-        ):
-            if valid_repeated:
-                for _, row in repeated.head(3).iterrows():
-                    _grouped_item(
-                        row['representative_question'],
-                        f"{row.get('primary_topic', 'Unclassified')} · {int(row['number_of_similar_questions'])} similar variants",
-                    )
-                with st.container(key="repeated_details"), st.expander("View all repeated questions", expanded=False):
-                    _display_table(repeated, ["representative_question","primary_topic","number_of_similar_questions"], {
-                        "representative_question":"Representative question", "primary_topic":"Question Category",
-                        "number_of_similar_questions":"Similar variants"})
-                    example_columns = [c for c in repeated if c.startswith("example_question_")]
-                    if example_columns:
-                        with st.expander("Example phrasings", expanded=False):
-                            for _, row in repeated.head(5).iterrows():
-                                phrases = dict.fromkeys(str(row[c]) for c in example_columns if pd.notna(row[c]))
-                                _grouped_item(row['representative_question'], "\n".join(phrases))
-            else:
-                _show_missing("Repeated-question data could not be loaded.")
-
     _section_intro(f"Parent Needs Trend by {granularity}", "How selected question categories change over time.")
     chart, notes = st.container(key="needs_trend").columns([7, 3], gap="medium")
     with chart:
@@ -1064,12 +1139,72 @@ def render_parent_needs_page(tables: dict[str, pd.DataFrame], filters: dict[str,
                     else:
                         _summary_item("Recent change", "No selected category increased")
                     _chart_caption(f"Comparison uses the last two recorded {granularity.lower()} periods; these are descriptive counts, not a significance test.")
+    matrix = tables["feedback_reason_matrix"]
+    if not matrix.empty:
+        with st.expander("Illustrative reviewed issues by topic", expanded=False):
+            st.caption(
+                "Synthetic negative-feedback cases by parent-need topic and selected issue type. "
+                "This is a reviewed-case example, not a population failure rate."
+            )
+            _render_feedback_reason_matrix(matrix)
     features = _filter(tables["feature_interest_summary"], environment=environment)
     if not features.empty and {"related_feature","query_count"}.issubset(features):
         with st.expander("Additional analysis", expanded=False):
             st.markdown("#### Related Parent Portal feature interest")
             st.caption("Small feature counts are exploratory and do not establish importance.")
             _display_table(features, ["related_feature","query_count"], {"related_feature":"Related feature","query_count":"Questions"})
+
+
+def render_repeated_questions_page(
+    tables: dict[str, pd.DataFrame], filters: dict[str, object],
+) -> None:
+    """Render recurring-question clusters as a focused, non-duplicated page."""
+    repeated = _filter(
+        tables["repeated_question_clusters"], environment=str(filters["environment"]),
+    )
+    required = {"representative_question", "number_of_similar_questions"}
+    if repeated.empty or not required.issubset(repeated):
+        _show_missing("Repeated-question data could not be loaded.")
+        return
+    repeated = repeated.sort_values("number_of_similar_questions", ascending=False).reset_index(drop=True)
+    total_variants = int(pd.to_numeric(repeated["number_of_similar_questions"], errors="coerce").fillna(0).sum())
+    cards = st.container(key="repeated_metrics").columns(3)
+    cards[0].metric("Repeated-question clusters", f"{len(repeated):,}", help="Groups of similar synthetic questions identified by the existing analysis logic.")
+    cards[1].metric("Similar question variants", f"{total_variants:,}", help="Total questions represented across the displayed clusters.")
+    cards[2].metric("Largest cluster", f"{int(repeated['number_of_similar_questions'].max()):,}", help="Questions in the largest synthetic similarity cluster.")
+    _section_intro("Repeated or Rephrased Questions", "Recurring needs that may warrant clearer content, prompts, or support.")
+    chart, detail = st.container(key="repeated_analysis").columns([6, 4], gap="medium")
+    with chart:
+        with _chart_card("Largest repeated-question clusters", "Ranked by the number of similar synthetic questions.", key="repeated_clusters"):
+            top = repeated.head(10).sort_values("number_of_similar_questions")
+            figure = px.bar(
+                top, x="number_of_similar_questions", y="representative_question",
+                orientation="h", text="number_of_similar_questions",
+                labels={"number_of_similar_questions": "Similar questions", "representative_question": ""},
+                color_discrete_sequence=["#167C80"],
+            )
+            figure.update_traces(textposition="outside", cliponaxis=False)
+            figure.update_layout(height=max(300, 42 * len(top)), margin=dict(l=5, r=35, t=10, b=5))
+            figure.update_xaxes(gridcolor="#E9EEEE", rangemode="tozero")
+            _plotly_chart(figure)
+    with detail:
+        with _summary_card("Cluster review", key="repeated_cluster_review"):
+            for _, row in repeated.head(4).iterrows():
+                _grouped_item(
+                    row["representative_question"],
+                    f"{row.get('primary_topic', 'Unclassified')} · {int(row['number_of_similar_questions'])} similar questions",
+                )
+    with st.expander("View all clusters and example phrasings", expanded=False):
+        _display_table(repeated, ["representative_question", "primary_topic", "number_of_similar_questions"], {
+            "representative_question": "Representative question", "primary_topic": "Question Category",
+            "number_of_similar_questions": "Similar questions",
+        })
+        example_columns = [column for column in repeated if column.startswith("example_question_")]
+        if example_columns:
+            st.markdown("#### Example phrasings")
+            for _, row in repeated.head(8).iterrows():
+                phrases = dict.fromkeys(str(row[column]) for column in example_columns if pd.notna(row[column]))
+                _grouped_item(row["representative_question"], "\n".join(phrases))
 
 
 def _feature_interest_is_sufficient(features: pd.DataFrame) -> bool:
@@ -1376,10 +1511,27 @@ def _render_feedback_overview(feedback: pd.DataFrame) -> None:
         ],
     ):
         card.metric(label, value)
-    st.markdown(
-        f"**{_format_count(counts['negative'])} of {_format_count(counts['total'])} "
-        f"feedback submissions were negative ({counts['negative_share']:.1%}).**"
-    )
+    _section_intro("Feedback Balance", "Positive, negative, and general feedback shown together before issue detail.")
+    balance = pd.DataFrame({
+        "feedback": ["Positive", "Negative", "General"],
+        "submissions": [counts["positive"], counts["negative"], counts["general"]],
+    })
+    with _chart_card(
+        "Submitted feedback mix", "All recorded feedback types in the current synthetic selection.",
+        key="feedback_balance",
+    ):
+        figure = px.bar(
+            balance, x="feedback", y="submissions", text="submissions", color="feedback",
+            labels={"feedback": "Feedback type", "submissions": "Submissions"},
+            color_discrete_map={"Positive": "#167C80", "Negative": "#B66832", "General": "#7A8790"},
+        )
+        figure.update_layout(height=245, showlegend=False, margin=dict(l=5, r=10, t=10, b=5))
+        figure.update_yaxes(gridcolor="#E9EEEE", rangemode="tozero", nticks=6)
+        _plotly_chart(figure)
+        _chart_caption(
+            f"Negative feedback accounts for {counts['negative_share']:.1%} of all recorded feedback; "
+            "the reason analysis below uses negative submissions only."
+        )
 
 
 def _render_feedback_reasons(exported: pd.DataFrame) -> None:
@@ -1633,16 +1785,19 @@ def render_conversation_signals(tables: dict[str, pd.DataFrame], filters: dict[s
 
     session_key = "conversation_id" if "conversation_id" in selected else "session_id"
     sessions = selected[session_key].dropna().nunique() if session_key in selected else 0
+    users = selected["user_id_anonymised"].dropna().nunique() if "user_id_anonymised" in selected else 0
     questions = len(selected)
     avg_questions = questions / sessions if sessions else None
+    avg_per_user = questions / users if users else None
     grouped = selected.dropna(subset=[session_key]).groupby(session_key).size() if session_key in selected else pd.Series(dtype=int)
     follow_up_sessions = int(grouped.gt(1).sum())
-    cards = st.container(key="conversation_signal_metrics").columns(4)
+    cards = st.container(key="conversation_signal_metrics").columns(5)
     for card, label, value, help_text in [
-        (cards[0], "Conversation sessions", _format_count(float(sessions)), "Distinct synthetic conversation identifiers."),
-        (cards[1], "User questions", _format_count(float(questions)), "Rows in the synthetic conversation log; not GA message events."),
-        (cards[2], "Average questions per session", _format_number(avg_questions), "User questions divided by identified conversation sessions."),
-        (cards[3], "Sessions with follow-up questions", _format_count(float(follow_up_sessions)), "Sessions containing more than one recorded user question; semantic follow-up detection is not yet validated."),
+        (cards[0], "Unique Sprout users", _format_count(float(users)), "Distinct anonymised synthetic users with a recorded Sprout question."),
+        (cards[1], "Conversation sessions", _format_count(float(sessions)), "Distinct synthetic conversation identifiers."),
+        (cards[2], "User messages", _format_count(float(questions)), "Rows in the synthetic conversation log; not GA message events."),
+        (cards[3], "Messages per user", _format_number(avg_per_user), "Recorded user messages divided by distinct active Sprout users."),
+        (cards[4], "Messages per session", _format_number(avg_questions), "Recorded user messages divided by identified conversation sessions."),
     ]:
         card.metric(label, value, help=help_text)
 
@@ -1686,6 +1841,24 @@ def render_conversation_signals(tables: dict[str, pd.DataFrame], filters: dict[s
                 _chart_caption("Conversation counts remain separate from GA website sessions and message events.")
             else:
                 _show_missing("Conversation-intensity data could not be calculated.")
+
+    languages = language_distribution(selected)
+    if not languages.empty:
+        _section_intro("Language Distribution", "Aggregated language labels supplied by the synthetic conversation source.")
+        figure = px.bar(
+            languages, x="question_count", y="language", orientation="h", text="question_count",
+            labels={"question_count": "Questions", "language": "Language"},
+            color_discrete_sequence=["#167C80"],
+        )
+        _plotly_chart(figure)
+    with st.expander("Proposed metrics and source validation", expanded=False):
+        st.dataframe(pd.DataFrame([
+            {"Metric": "Quick-reply usage by pillar", "Status": "Partial", "Reason": "Quick-reply input is recorded, but the message events do not carry a verified pillar."},
+            {"Metric": "Language distribution", "Status": "Requires Validation", "Reason": "No validated language field is present in the bundled conversation table."},
+            {"Metric": "Translation request volume", "Status": "Requires Use-case Validation", "Reason": "No translation feature or request type is assumed."},
+            {"Metric": "Chat activity by hour and weekday", "Status": "Requires Validation", "Reason": "The existing heatmap is Parent Portal page views, not Sprout conversation starts."},
+        ]), hide_index=True, width="stretch")
+    return
 
     trend = conversation_quality_trend(selected, granularity)
     _section_intro("Response Quality & Feedback", "Which recorded signals may deserve closer review and how users rated responses.")
@@ -2372,16 +2545,25 @@ def main() -> None:
         unsafe_allow_html=True,
     )
     tables = load_dashboard_tables(dashboard_data_root())
-    page, feedback_subpage = render_sidebar_navigation()
-    filters = render_report_header(page, tables, feedback_subpage)
-    if page == "Usage & Engagement":
-        render_engagement_page(tables, filters)
-    elif page == "Parent Needs":
+    page, _ = render_sidebar_navigation()
+    filters = render_report_header(page, tables)
+    if page == "Parent Portal Reach":
+        render_engagement_page(tables, filters, view="portal")
+    elif page == "Sprout Usage":
+        render_conversation_signals(tables, filters)
+    elif page == "Entry & Journey":
+        render_engagement_page(tables, filters, view="journey")
+    elif page == "Topics & Trends":
         render_parent_needs_page(tables, filters)
-    elif page == "Feedback & Response Quality":
-        render_quality_page(tables, filters, feedback_subpage or FEEDBACK_SUBPAGES[0])
-    else:
+    elif page == "Repeated Questions":
+        render_repeated_questions_page(tables, filters)
+    elif page == "Feedback Overview":
+        render_quality_page(tables, filters, "Feedback Overview")
+    elif page == "Explore Feedback Cases":
+        render_quality_page(tables, filters, "Explore Feedback Cases")
+    elif page == "Operations & AI Quality":
         render_operations_page(tables, filters)
+    render_metric_traceability(page)
 
 
 if __name__ == "__main__":
