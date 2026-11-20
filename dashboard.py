@@ -2246,6 +2246,9 @@ def main() -> None:
         .workspace-title {font-size: .92rem; font-weight: 750; letter-spacing: .04em; line-height: 1.45; color: #183E42; margin: .35rem 0 1.25rem;}
         .nav-group {font-size: .68rem; font-weight: 750; letter-spacing: .08em; color: #707A80; margin: 1rem 0 .35rem;}
         .nav-group-first {margin-top: 0;}
+        [data-testid="stAppViewContainer"]:has(.st-key-beta_testing_module) .block-container {
+            max-width: none; padding-left: 1rem; padding-right: 1rem;
+        }
         .st-key-beta_testing_module iframe {display: block; width: 100%; border: 0; background: #F6F8FC;}
         [data-testid="stVerticalBlock"] {gap: var(--space-content);}
         [data-testid="stHorizontalBlock"] {gap: var(--space-heading);}

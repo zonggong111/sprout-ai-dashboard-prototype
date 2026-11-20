@@ -7,7 +7,6 @@ from pathlib import Path
 import re
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -50,20 +49,7 @@ def build_beta_testing_html() -> str:
     if (css_count, data_count, app_count) != (1, 1, 1):
         raise ValueError("Beta Testing index.html does not contain the expected local assets.")
 
-    resize_bridge = """
-    <script>
-    (() => {
-      const reportHeight = () => window.parent.postMessage({
-        isStreamlitMessage: true,
-        type: "streamlit:setFrameHeight",
-        height: Math.ceil(document.documentElement.scrollHeight)
-      }, "*");
-      window.addEventListener("load", reportHeight);
-      new ResizeObserver(reportHeight).observe(document.documentElement);
-    })();
-    </script>
-    """
-    return document.replace("</body>", f"{resize_bridge}</body>", 1)
+    return document
 
 
 def render_beta_testing() -> None:
@@ -76,4 +62,4 @@ def render_beta_testing() -> None:
         return
 
     with st.container(key="beta_testing_module"):
-        components.html(document, height=720, scrolling=False)
+        st.iframe(document, width="stretch", height="content")
