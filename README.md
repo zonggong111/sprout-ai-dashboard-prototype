@@ -24,6 +24,8 @@ On Windows, activate the environment with `.venv\Scripts\activate`.
 ## Runtime structure
 
 - `dashboard.py` is the Streamlit entry point.
+- `src/beta_testing.py` packages the static Beta Testing assets into an isolated Streamlit component.
+- `beta_testing/` contains the synthetic three-page Beta Testing visual proposal: Conversation Analytics & KB Gaps, Evaluation Results & Calibration, and Manual Marking & Discrepancy.
 - `src/feedback_analysis.py` provides the dashboard's feedback transformations.
 - `outputs/tables/` contains only the synthetic CSV tables read by the app.
 - `requirements.txt` contains only deployed Python dependencies.
@@ -31,3 +33,10 @@ On Windows, activate the environment with `.venv\Scripts\activate`.
 
 The app resolves data paths from the directory containing `dashboard.py`, so it
 does not depend on the current working directory or files outside this folder.
+
+## Navigation
+
+The sidebar provides two top-level sections:
+
+- **Main Dashboard** retains the existing Streamlit analytics pages and filters.
+- **Beta Testing** opens the self-contained synthetic visual proposal. Its three analytical pages, filters, charts, tooltips, cross-filtering and case-detail interactions run entirely from repository-local assets.

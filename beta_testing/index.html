@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Synthetic Parent Portal and Sprout AI Beta Round 2 Power BI visual proposal.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23238F8A'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Arial' font-size='18' font-weight='700' fill='white'%3ES%3C/text%3E%3C/svg%3E">
+  <title>Sprout AI — Beta visual proposal</title>
+  <link rel="stylesheet" href="styles.css?v=20261120-3">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="report-nav" aria-label="Dashboard navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">S</div>
+        <div><strong>Sprout AI</strong><span>Beta visual proposal</span></div>
+      </div>
+      <nav id="page-nav">
+        <button class="nav-item active" data-page="analytics"><span>01</span>Conversation analytics &amp; KB gaps</button>
+        <button class="nav-item" data-page="evaluation"><span>02</span>Evaluation results &amp; calibration</button>
+        <button class="nav-item" data-page="marking"><span>03</span>Manual marking &amp; discrepancy</button>
+      </nav>
+      <div class="companion-nav">
+        <button class="nav-item review-nav" data-page="review">Design review companion</button>
+        <button id="print-button" class="secondary-button" type="button">Print / Save PDF</button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="report-header">
+        <header class="topbar">
+          <p class="eyebrow">Parent Portal / Sprout AI · Beta Round 2</p>
+          <h1 id="page-title">Conversation Analytics &amp; KB Gaps</h1>
+          <p id="page-question" class="page-question">What are parents asking, which signals require review, and what action could follow?</p>
+          <div class="mock-notice">SYNTHETIC DATA — VISUAL DESIGN PROPOSAL</div>
+        </header>
+
+        <section id="filter-bar" class="filter-bar" aria-label="Dashboard slicers">
+          <label><span id="agent-filter-label">Agent type</span><select id="agent-filter"></select></label>
+          <label><span id="dimension-filter-label">Assigned marker</span><select id="dimension-filter"></select></label>
+          <label><span id="status-filter-label">Lead review status</span><select id="status-filter"></select></label>
+          <button id="reset-filters" class="text-button tip" data-tip="Power BI equivalent: Reset slicers bookmark button" type="button">Reset slicers</button>
+          <span id="filter-summary" class="filter-summary" aria-live="polite"></span>
+        </section>
+      </div>
+
+      <div id="dashboard" aria-live="polite"></div>
+      <footer><span>Synthetic Data — Visual Design Proposal</span><span>Fictional scenarios, reporting units and Power BI mappings are documented in Design Review.</span></footer>
+    </main>
+  </div>
+  <div id="tooltip" class="tooltip" role="tooltip"></div>
+  <!-- Keep the runtime assets on one version so a browser cannot combine a
+       cached data contract with newer Page 01 rendering code. -->
+  <script src="synthetic-data.js?v=20261120-3"></script>
+  <script src="app.js?v=20261120-3"></script>
+</body>
+</html>

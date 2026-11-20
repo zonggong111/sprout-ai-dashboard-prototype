@@ -13,6 +13,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from src.beta_testing import render_beta_testing
 from src.dashboard_extensions import (
     aggregate_engagement,
     aggregate_portal_usage,
@@ -631,27 +632,47 @@ def _set_active_page(page: str) -> None:
     st.session_state["active_report_page"] = page
 
 
-def render_sidebar_navigation() -> tuple[str, str | None]:
+def _set_active_section(section: str) -> None:
+    st.session_state["active_dashboard_section"] = section
+    st.query_params["section"] = "beta" if section == "Beta Testing" else "main"
+
+
+def render_sidebar_navigation() -> tuple[str, str]:
     """Render one compact primary navigation that persists through reruns."""
     if st.session_state.get("active_report_page") not in PAGES:
         st.session_state["active_report_page"] = next(iter(PAGES))
+    if st.session_state.get("active_dashboard_section") not in {"Main Dashboard", "Beta Testing"}:
+        st.session_state["active_dashboard_section"] = (
+            "Beta Testing" if st.query_params.get("section") == "beta" else "Main Dashboard"
+        )
     active = st.session_state["active_report_page"]
+    section = st.session_state["active_dashboard_section"]
     with st.sidebar:
         st.markdown('<div class="workspace-title">PARENT PORTAL &amp;<br>SPROUT AI</div>', unsafe_allow_html=True)
-        current_group = None
-        for page, config in PAGES.items():
-            if config["group"] != current_group:
-                current_group = config["group"]
-                st.markdown(f'<div class="nav-group">{current_group}</div>', unsafe_allow_html=True)
+        st.markdown('<div class="nav-group nav-group-first">DASHBOARD SECTION</div>', unsafe_allow_html=True)
+        for label, icon in [("Main Dashboard", "▦"), ("Beta Testing", "◫")]:
             st.button(
-                f'{config["icon"]}  {page}', key=f"nav_{page}", width="stretch",
-                type="primary" if page == active else "secondary",
-                on_click=_set_active_page, args=(page,),
+                f"{icon}  {label}", key=f"nav_section_{label}", width="stretch",
+                type="primary" if label == section else "secondary",
+                on_click=_set_active_section, args=(label,),
             )
+        if section == "Main Dashboard":
+            current_group = None
+            for page, config in PAGES.items():
+                if config["group"] != current_group:
+                    current_group = config["group"]
+                    st.markdown(f'<div class="nav-group">{current_group}</div>', unsafe_allow_html=True)
+                st.button(
+                    f'{config["icon"]}  {page}', key=f"nav_{page}", width="stretch",
+                    type="primary" if page == active else "secondary",
+                    on_click=_set_active_page, args=(page,),
+                )
+        else:
+            st.caption("Three-page synthetic analytics visual proposal")
         st.divider()
         st.caption("Synthetic prototype · No production data")
     page = st.session_state["active_report_page"]
-    return page, None
+    return section, page
 
 
 def render_portal_usage_section(
@@ -2224,6 +2245,8 @@ def main() -> None:
         }
         .workspace-title {font-size: .92rem; font-weight: 750; letter-spacing: .04em; line-height: 1.45; color: #183E42; margin: .35rem 0 1.25rem;}
         .nav-group {font-size: .68rem; font-weight: 750; letter-spacing: .08em; color: #707A80; margin: 1rem 0 .35rem;}
+        .nav-group-first {margin-top: 0;}
+        .st-key-beta_testing_module iframe {display: block; width: 100%; border: 0; background: #F6F8FC;}
         [data-testid="stVerticalBlock"] {gap: var(--space-content);}
         [data-testid="stHorizontalBlock"] {gap: var(--space-heading);}
         :is(.st-key-activity_section, .st-key-entry_section, .st-key-needs_top,
@@ -2544,8 +2567,11 @@ def main() -> None:
         """,
         unsafe_allow_html=True,
     )
+    section, page = render_sidebar_navigation()
+    if section == "Beta Testing":
+        render_beta_testing()
+        return
     tables = load_dashboard_tables(dashboard_data_root())
-    page, _ = render_sidebar_navigation()
     filters = render_report_header(page, tables)
     if page == "Parent Portal Reach":
         render_engagement_page(tables, filters, view="portal")
